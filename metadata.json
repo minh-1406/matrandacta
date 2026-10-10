@@ -1,0 +1,6 @@
+{
+  "name": "matrandacta - Ma trận và bản đặc tả đề kiểm tra THPT",
+  "description": "Phần mềm xây dựng ma trận và bản đặc tả đề kiểm tra định kì THPT theo Phụ lục Công văn 7991/BGDĐT-GDTrH và cấu trúc đề tốt nghiệp QĐ 764. Hỗ trợ tạo đề kiểm tra bằng AI, xuất Word, PDF, Excel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
