@@ -1196,17 +1196,6 @@ export async function exportAnswerWord(
   paragraphs.push(headerTable);
   paragraphs.push(new Paragraph({ children: [], spacing: { after: 120 } }));
 
-  paragraphs.push(
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: `HƯỚNG DẪN CHẤM ĐỀ KIỂM TRA ${ki.toUpperCase()} - LỚP ${kh}`, bold: true, size: 26 }),
-        new TextRun({ break: 1, text: `MÔN: ${mon.toUpperCase()}`, bold: true, size: 24 }),
-      ],
-      spacing: { after: 180 },
-    })
-  );
-
   // Title section
   paragraphs.push(
     new Paragraph({
