@@ -10,7 +10,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+// Dev server must run on port 3000 per AI Studio runtime constraints
+const PORT = 3000;
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
@@ -33,9 +44,32 @@ const ai = new GoogleGenAI({
 
 app.post('/api/gemini/generate', async (req, res) => {
   try {
-    const { prompt, systemInstruction, responseMimeType, useSearch } = req.body;
+    const { prompt, systemInstruction, responseMimeType, useSearch, fileBase64, fileMimeType } = req.body;
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    let contents: any = prompt;
+    if (fileBase64 && fileMimeType) {
+      const isGeminiSupportedMime =
+        fileMimeType === 'application/pdf' ||
+        fileMimeType.startsWith('image/') ||
+        fileMimeType.startsWith('audio/') ||
+        fileMimeType.startsWith('video/');
+
+      if (isGeminiSupportedMime) {
+        contents = {
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: fileMimeType,
+                data: fileBase64,
+              },
+            },
+          ],
+        };
+      }
     }
 
     const config: Record<string, unknown> = {};
@@ -45,38 +79,48 @@ app.post('/api/gemini/generate', async (req, res) => {
       config.tools = [{ googleSearch: {} }];
     }
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
+      return res.status(200).json({
+        text: '',
+        quotaExhausted: false,
+        noKey: true,
+      });
+    }
+
     const modelsToTry = [
       'gemini-3.8-flash',
-      'gemini-3.1-flash-lite',
       'gemini-flash-latest',
+      'gemini-3.1-flash-lite',
     ];
 
     let responseText: string | null = null;
 
-    if (process.env.GEMINI_API_KEY) {
-      for (const modelName of modelsToTry) {
-        try {
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents: prompt,
-            config,
-          });
-          if (response && response.text) {
-            responseText = response.text;
-            break;
-          }
-        } catch (err: any) {
-          const isQuota = err?.message?.includes('429') || err?.message?.includes('RESOURCE_EXHAUSTED');
-          if (isQuota) {
-            break; // Quota applies to the entire API key project, fallback immediately
-          }
-          continue;
+    for (const modelName of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents,
+          config,
+        });
+        if (response && response.text) {
+          responseText = response.text;
+          break;
         }
+      } catch (err: any) {
+        const msg = err?.message || '';
+        const isQuota = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED');
+        const isAuth = msg.includes('401') || msg.includes('API_KEY_INVALID') || msg.includes('UNAUTHENTICATED');
+        if (isQuota || isAuth) {
+          console.warn('Gemini API notice:', msg.slice(0, 120));
+          break; // Stop immediately on auth or quota failure
+        }
+        continue;
       }
     }
 
     if (!responseText) {
-      // Graceful fallback response when quota is reached or API is unavailable
+      // Graceful fallback response when quota/auth is reached or API is unavailable
       return res.status(200).json({
         text: '',
         quotaExhausted: true,
@@ -85,7 +129,7 @@ app.post('/api/gemini/generate', async (req, res) => {
 
     return res.status(200).json({ text: responseText, quotaExhausted: false });
   } catch (error: any) {
-    // Return graceful 200 to ensure client does not crash on quota/network issues
+    // Return graceful 200 to ensure client does not crash on quota/auth/network issues
     return res.status(200).json({
       text: '',
       quotaExhausted: true,
@@ -98,7 +142,10 @@ async function startServer() {
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);

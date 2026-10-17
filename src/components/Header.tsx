@@ -1,11 +1,14 @@
 import React from 'react';
-import { Download, Copy, FileText, FileSpreadsheet, File } from 'lucide-react';
+import { Download, Copy, FileText, FileSpreadsheet, File, Save, FolderOpen } from 'lucide-react';
 
 interface HeaderProps {
   onExportWord: () => void;
   onExportPdf: () => void;
   onExportExcel: () => void;
   onCopyWord: () => void;
+  onSaveMatrix: () => void;
+  onOpenSavedModal: () => void;
+  savedCount: number;
   copyFeedback: string | null;
   statusMessage: string | null;
 }
@@ -15,6 +18,9 @@ export const Header: React.FC<HeaderProps> = ({
   onExportPdf,
   onExportExcel,
   onCopyWord,
+  onSaveMatrix,
+  onOpenSavedModal,
+  savedCount,
   copyFeedback,
   statusMessage,
 }) => {
@@ -60,8 +66,28 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Export Actions */}
+        {/* Actions */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Save & Library */}
+          <button
+            onClick={onSaveMatrix}
+            className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-sm shadow transition active:scale-95"
+            title="Lưu ma trận hiện tại"
+          >
+            <Save className="w-4 h-4" />
+            Lưu ma trận
+          </button>
+
+          <button
+            onClick={onOpenSavedModal}
+            className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/20 border border-white/30 text-white font-semibold text-sm hover:bg-white/30 transition active:scale-95"
+            title="Mở thư viện các ma trận đã lưu"
+          >
+            <FolderOpen className="w-4 h-4" />
+            Đã lưu ({savedCount})
+          </button>
+
+          {/* Export Actions */}
           <button
             onClick={onExportWord}
             className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-indigo-700 font-semibold text-sm shadow hover:bg-slate-100 transition active:scale-95"

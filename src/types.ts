@@ -81,3 +81,32 @@ export type SubjectName =
 
 export type ExamSemester = 'Giữa kì I' | 'Cuối kì I' | 'Giữa kì II' | 'Cuối kì II';
 export type StructureMode = 'k' | 't'; // 'k': CV 7991, 't': QĐ 764
+
+export interface FullAppState {
+  mon: SubjectName;
+  grade: string;
+  semester: ExamSemester;
+  structureMode: StructureMode;
+  noTLN: boolean;
+  targetTotalScore: number;
+  targetFormatPoints: number[];
+  targetLevelPoints: number[];
+  points: QuestionPointConfig;
+  rows: MatrixRow[];
+  ppctData?: {
+    text: string;
+    base64: string;
+    mimeType: string;
+    yccdText: string;
+    yccdBase64: string;
+    yccdMimeType: string;
+  };
+}
+
+export interface SavedMatrixItem {
+  id: string;
+  title: string;
+  updatedAt: string; // ISO timestamp
+  createdAt: string; // ISO timestamp
+  state: FullAppState;
+}

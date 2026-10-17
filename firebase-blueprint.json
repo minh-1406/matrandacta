@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "SavedMatrix": {
+      "title": "SavedMatrixItem",
+      "description": "Saved matrix item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "state": { "type": "object" }
+      },
+      "required": ["id", "title", "updatedAt", "state"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/matrices/{matrixId}": {
+      "schema": "SavedMatrix",
+      "description": "User saved matrices"
+    }
+  }
+}

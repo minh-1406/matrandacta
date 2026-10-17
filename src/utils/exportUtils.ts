@@ -53,22 +53,22 @@ export function generateMatrixHTML(
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">TT</th>
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">Chủ đề/Chương</th>
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">Nội dung/đơn vị kiến thức</th>
-      <th colspan="15" style="background:#e8eefe;border:1px solid #999;padding:6px">Mức độ đánh giá</th>
+      <th colspan="12" style="background:#e8eefe;border:1px solid #999;padding:6px">Mức độ đánh giá</th>
       <th colspan="3" rowspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">Tổng</th>
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">Tỉ lệ % điểm</th>
     </tr>
     <tr>
-      <th colspan="12" style="background:#e8eefe;border:1px solid #999;padding:6px">TNKQ</th>
+      <th colspan="9" style="background:#e8eefe;border:1px solid #999;padding:6px">TNKQ</th>
       <th colspan="3" rowspan="2" style="background:#e8eefe;border:1px solid #999;padding:6px">Tự luận</th>
     </tr>
     <tr>
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[0]}</th>
-      <th colspan="6" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[1]}<sup>2</sup></th>
+      <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[1]}<sup>2</sup></th>
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[2]}<sup>3</sup></th>
     </tr>
     <tr>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
-      <th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
+      <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
@@ -84,7 +84,9 @@ export function generateMatrixHTML(
           const l = j % 3;
           if (f === 1) {
             const y = getY(r)[l];
-            return `<td style="border:1px solid #999;text-align:center">${x || ''}</td><td style="border:1px solid #999;text-align:center;color:#666">${y ? `(${y})` : ''}</td>`;
+            const qStr = x || (y > 0 ? 1 : 0);
+            const itemStr = y ? ` (${y})` : '';
+            return `<td style="border:1px solid #999;text-align:center">${(x || y) ? `${qStr}${itemStr}` : ''}</td>`;
           }
           return `<td style="border:1px solid #999;text-align:center">${x || ''}</td>`;
         })
@@ -105,11 +107,13 @@ export function generateMatrixHTML(
     <tr>
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:left;padding:4px 6px">Tổng số câu</th>
       ${S.t
-        .map((v, j) =>
-          ((j / 3) | 0) === 1
-            ? `<th colspan="2" style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`
-            : `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`
-        )
+        .map((v, j) => {
+          const fi = (j / 3) | 0;
+          if (fi === 1) {
+            return `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`;
+          }
+          return `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`;
+        })
         .join('')}
       ${S.tt.map((v) => `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`).join('')}
       <th style="background:#e8eefe;border:1px solid #999"></th>
@@ -119,7 +123,7 @@ export function generateMatrixHTML(
       ${S.f
         .map(
           (v, i) =>
-            `<th colspan="${i === 1 ? 6 : 3}" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber(v)}${i === 0 ? '<sup>5</sup>' : ''}</th>`
+            `<th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber(v)}${i === 0 ? '<sup>5</sup>' : ''}</th>`
         )
         .join('')}
       ${S.lv.map((v) => `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber(v)}</th>`).join('')}
@@ -129,8 +133,8 @@ export function generateMatrixHTML(
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:left;padding:4px 6px">Tỉ lệ %</th>
       ${S.f
         .map(
-          (v, i) =>
-            `<th colspan="${i === 1 ? 6 : 3}" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber((v / Tt) * 100)}</th>`
+          (v) =>
+            `<th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber((v / Tt) * 100)}</th>`
         )
         .join('')}
       ${S.lv.map((v) => `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber((v / Tt) * 100)}</th>`).join('')}
@@ -144,20 +148,20 @@ export function generateMatrixHTML(
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">Chủ đề/Chương</th>
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px">Nội dung/đơn vị kiến thức</th>
       <th rowspan="4" style="background:#e8eefe;border:1px solid #999;padding:6px;min-width:320px">Yêu cầu cần đạt</th>
-      <th colspan="15" style="background:#e8eefe;border:1px solid #999;padding:6px">Số câu hỏi ở các mức độ đánh giá</th>
+      <th colspan="12" style="background:#e8eefe;border:1px solid #999;padding:6px">Số câu hỏi ở các mức độ đánh giá</th>
     </tr>
     <tr>
-      <th colspan="12" style="background:#e8eefe;border:1px solid #999;padding:6px">TNKQ</th>
+      <th colspan="9" style="background:#e8eefe;border:1px solid #999;padding:6px">TNKQ</th>
       <th colspan="3" rowspan="2" style="background:#e8eefe;border:1px solid #999;padding:6px">Tự luận</th>
     </tr>
     <tr>
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[0]}</th>
-      <th colspan="6" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[1]}</th>
+      <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[1]}</th>
       <th colspan="3" style="background:#e8eefe;border:1px solid #999;padding:6px">${FORMAT_LABELS[2]}</th>
     </tr>
     <tr>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
-      <th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th colspan="2" style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
+      <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
       <th style="background:#e8eefe;border:1px solid #999;padding:4px">Biết</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Hiểu</th><th style="background:#e8eefe;border:1px solid #999;padding:4px">Vận dụng</th>
     </tr>`;
@@ -165,12 +169,17 @@ export function generateMatrixHTML(
   const specRowsHtml = rows
     .map((r, i) => {
       const sp = r.s || ['', '', ''];
-      const qDesc = `
-        <div><b>- Biết:</b> ${sp[0]}</div>
-        <div><b>- Hiểu:</b> ${sp[1]}</div>
-        <div><b>- VD:</b> ${sp[2]}</div>
-        ${dsNote(r) ? `<div style="margin-top:4px;color:#1d4ed8;font-style:italic">${dsNote(r)}</div>` : ''}
-      `;
+      const q0 = (r.v[0] || 0) + (r.v[3] || 0) + (r.v[6] || 0) + (r.v[9] || 0);
+      const q1 = (r.v[1] || 0) + (r.v[4] || 0) + (r.v[7] || 0) + (r.v[10] || 0);
+      const q2 = (r.v[2] || 0) + (r.v[5] || 0) + (r.v[8] || 0) + (r.v[11] || 0);
+
+      const parts: string[] = [];
+      if (q0 > 0 && sp[0]) parts.push(`<div><b>- Biết:</b> ${sp[0]}</div>`);
+      if (q1 > 0 && sp[1]) parts.push(`<div><b>- Hiểu:</b> ${sp[1]}</div>`);
+      if (q2 > 0 && sp[2]) parts.push(`<div><b>- Vận dụng:</b> ${sp[2]}</div>`);
+      if (dsNote(r)) parts.push(`<div style="margin-top:4px;color:#1d4ed8;font-style:italic">${dsNote(r)}</div>`);
+
+      const qDesc = parts.join('');
 
       const cells = r.v
         .map((x, j) => {
@@ -178,7 +187,9 @@ export function generateMatrixHTML(
           const l = j % 3;
           if (f === 1) {
             const y = getY(r)[l];
-            return `<td style="border:1px solid #999;text-align:center">${x || ''}</td><td style="border:1px solid #999;text-align:center;color:#666">${y ? `(${y})` : ''}</td>`;
+            const qStr = x || (y > 0 ? 1 : 0);
+            const itemStr = y ? ` (${y})` : '';
+            return `<td style="border:1px solid #999;text-align:center">${(x || y) ? `${qStr}${itemStr}` : ''}</td>`;
           }
           return `<td style="border:1px solid #999;text-align:center">${x || ''}</td>`;
         })
@@ -222,10 +233,31 @@ export function generateMatrixHTML(
           <tr>
             <th colspan="4" style="background:#e8eefe;border:1px solid #999;text-align:left;padding:4px 6px">Tổng số câu</th>
             ${S.t
-              .map((v, j) =>
-                ((j / 3) | 0) === 1
-                  ? `<th colspan="2" style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`
-                  : `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`
+              .map((v, j) => {
+                const fi = (j / 3) | 0;
+                const l = j % 3;
+                if (fi === 1) {
+                  return `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${S.qDS[l]} (${v})</th>`;
+                }
+                return `<th style="background:#e8eefe;border:1px solid #999;text-align:center">${v}</th>`;
+              })
+              .join('')}
+          </tr>
+          <tr>
+            <th colspan="4" style="background:#e8eefe;border:1px solid #999;text-align:left;padding:4px 6px">Tổng số điểm</th>
+            ${S.f
+              .map(
+                (v) =>
+                  `<th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber(v)}</th>`
+              )
+              .join('')}
+          </tr>
+          <tr>
+            <th colspan="4" style="background:#e8eefe;border:1px solid #999;text-align:left;padding:4px 6px">Tỉ lệ %</th>
+            ${S.f
+              .map(
+                (v) =>
+                  `<th colspan="3" style="background:#e8eefe;border:1px solid #999;text-align:center">${formatNumber((v / Tt) * 100)}%</th>`
               )
               .join('')}
           </tr>
@@ -277,27 +309,28 @@ export async function exportMatrixWord(
   const S = calculateSums(rows, points);
   const Tt = S.T || 10;
 
+  // 1. Matrix Header Cells
   const headerCells = [
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'TT', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Chủ đề/Chương', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Nội dung/đơn vị kiến thức', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Mức độ đánh giá', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 15, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Mức độ đánh giá', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 12, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Tổng', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, rowSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Tỉ lệ %', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
       ],
     }),
     new TableRow({
       children: [
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'TNKQ', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 12, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'TNKQ', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 9, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Tự luận', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, rowSpan: 2, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
       ],
     }),
     new TableRow({
       children: [
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Nhiều lựa chọn', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
-        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Đúng - Sai', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 6, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Đúng - Sai', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Trả lời ngắn', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
       ],
     }),
@@ -306,9 +339,9 @@ export async function exportMatrixWord(
         new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
-        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], columnSpan: 2, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
-        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], columnSpan: 2, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
-        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], columnSpan: 2, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
         new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
@@ -322,6 +355,7 @@ export async function exportMatrixWord(
     }),
   ];
 
+  // 2. Matrix Data Rows
   const dataRows = rows.map((r, i) => {
     const l3 = calculateRowLevelCounts(r);
     const rowScore = calculateRowScore(r, points);
@@ -336,8 +370,9 @@ export async function exportMatrixWord(
       const l = j % 3;
       if (f === 1) {
         const y = getY(r)[l];
-        cells.push(new TableCell({ children: [new Paragraph({ text: r.v[j] ? String(r.v[j]) : '', alignment: AlignmentType.CENTER })] }));
-        cells.push(new TableCell({ children: [new Paragraph({ text: y ? `(${y})` : '', alignment: AlignmentType.CENTER })] }));
+        const qCount = r.v[j] || (y > 0 ? 1 : 0);
+        const cellText = (qCount || y) ? `${qCount}${y ? ` (${y})` : ''}` : '';
+        cells.push(new TableCell({ children: [new Paragraph({ text: cellText, alignment: AlignmentType.CENTER })] }));
       } else {
         cells.push(new TableCell({ children: [new Paragraph({ text: r.v[j] ? String(r.v[j]) : '', alignment: AlignmentType.CENTER })] }));
       }
@@ -351,9 +386,280 @@ export async function exportMatrixWord(
     return new TableRow({ children: cells });
   });
 
+  // 3. Matrix Footer Totals
+  const totQCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tổng số câu', bold: true })] })],
+      columnSpan: 3,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.t.forEach((v, j) => {
+    const fi = (j / 3) | 0;
+    if (fi === 1) {
+      totQCells.push(
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: String(v), bold: true })], alignment: AlignmentType.CENTER })],
+          shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+        })
+      );
+    } else {
+      totQCells.push(
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: String(v), bold: true })], alignment: AlignmentType.CENTER })],
+          shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+        })
+      );
+    }
+  });
+  S.tt.forEach((v) => {
+    totQCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: String(v), bold: true })], alignment: AlignmentType.CENTER })],
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+  totQCells.push(new TableCell({ children: [new Paragraph({ text: '' })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }));
+
+  const totScoreCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tổng số điểm', bold: true })] })],
+      columnSpan: 3,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.f.forEach((v) => {
+    totScoreCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: formatNumber(v), bold: true })], alignment: AlignmentType.CENTER })],
+        columnSpan: 3,
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+  S.lv.forEach((v) => {
+    totScoreCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: formatNumber(v), bold: true })], alignment: AlignmentType.CENTER })],
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+  totScoreCells.push(new TableCell({ children: [new Paragraph({ text: '' })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }));
+
+  const totPctCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tỉ lệ %', bold: true })] })],
+      columnSpan: 3,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.f.forEach((v) => {
+    totPctCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: formatNumber((v / Tt) * 100), bold: true })], alignment: AlignmentType.CENTER })],
+        columnSpan: 3,
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+  S.lv.forEach((v) => {
+    totPctCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: formatNumber((v / Tt) * 100), bold: true })], alignment: AlignmentType.CENTER })],
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+  totPctCells.push(new TableCell({ children: [new Paragraph({ text: '' })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }));
+
   const matrixTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [...headerCells, ...dataRows],
+    rows: [
+      ...headerCells,
+      ...dataRows,
+      new TableRow({ children: totQCells }),
+      new TableRow({ children: totScoreCells }),
+      new TableRow({ children: totPctCells }),
+    ],
+  });
+
+  // 4. Matrix Footnotes
+  const footnotesParas = [
+    new Paragraph({ children: [new TextRun({ text: `(2) ${FOOTNOTES_TEXT[2]}`, size: 20 })], spacing: { before: 80 } }),
+    new Paragraph({ children: [new TextRun({ text: `(3) ${FOOTNOTES_TEXT[3]}`, size: 20 })] }),
+    new Paragraph({ children: [new TextRun({ text: `(4) ${FOOTNOTES_TEXT[4]}`, size: 20 })] }),
+    new Paragraph({ children: [new TextRun({ text: `(5) ${FOOTNOTES_TEXT[5]}`, size: 20 })] }),
+    new Paragraph({
+      children: [new TextRun({ text: 'Ghi chú: ở dạng “Đúng – Sai”, mỗi ô ghi Số câu lớn (Số ý nhỏ); dòng Tổng số câu của dạng này tính theo số ý nhỏ; cột Tổng và số điểm tính theo số câu lớn (mỗi câu lớn gồm 4 ý).', italics: true, size: 20 })],
+      spacing: { after: 180 },
+    }),
+  ];
+
+  // 5. Specification Table Header
+  const specHeaderCells = [
+    new TableRow({
+      children: [
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'TT', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Chủ đề/Chương', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Nội dung/đơn vị kiến thức', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Yêu cầu cần đạt', bold: true })], alignment: AlignmentType.CENTER })], rowSpan: 4, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Số câu hỏi ở các mức độ đánh giá', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 12, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+      ],
+    }),
+    new TableRow({
+      children: [
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'TNKQ', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 9, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Tự luận', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, rowSpan: 2, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+      ],
+    }),
+    new TableRow({
+      children: [
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Nhiều lựa chọn', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Đúng - Sai', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Trả lời ngắn', bold: true })], alignment: AlignmentType.CENTER })], columnSpan: 3, shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+      ],
+    }),
+    new TableRow({
+      children: [
+        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Biết', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'Hiểu', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+        new TableCell({ children: [new Paragraph({ text: 'VD', alignment: AlignmentType.CENTER })], shading: { fill: 'E8EEFE', type: ShadingType.CLEAR } }),
+      ],
+    }),
+  ];
+
+  // 6. Specification Data Rows
+  const specDataRows = rows.map((r, i) => {
+    const sp = r.s || ['', '', ''];
+    const q0 = (r.v[0] || 0) + (r.v[3] || 0) + (r.v[6] || 0) + (r.v[9] || 0);
+    const q1 = (r.v[1] || 0) + (r.v[4] || 0) + (r.v[7] || 0) + (r.v[10] || 0);
+    const q2 = (r.v[2] || 0) + (r.v[5] || 0) + (r.v[8] || 0) + (r.v[11] || 0);
+
+    const specParas: Paragraph[] = [];
+    if (q0 > 0 && sp[0]) {
+      specParas.push(new Paragraph({ children: [new TextRun({ text: '- Biết: ', bold: true }), new TextRun({ text: sp[0] })] }));
+    }
+    if (q1 > 0 && sp[1]) {
+      specParas.push(new Paragraph({ children: [new TextRun({ text: '- Hiểu: ', bold: true }), new TextRun({ text: sp[1] })] }));
+    }
+    if (q2 > 0 && sp[2]) {
+      specParas.push(new Paragraph({ children: [new TextRun({ text: '- Vận dụng: ', bold: true }), new TextRun({ text: sp[2] })] }));
+    }
+    if (dsNote(r)) {
+      specParas.push(
+        new Paragraph({ children: [new TextRun({ text: dsNote(r), italics: true, color: '1D4ED8' })], spacing: { before: 40 } })
+      );
+    }
+
+    const cells: TableCell[] = [
+      new TableCell({ children: [new Paragraph({ text: String(i + 1), alignment: AlignmentType.CENTER })] }),
+      new TableCell({ children: [new Paragraph({ text: r.c })] }),
+      new TableCell({ children: [new Paragraph({ text: r.n })] }),
+      new TableCell({ children: specParas }),
+    ];
+
+    for (let j = 0; j < 12; j++) {
+      const f = (j / 3) | 0;
+      const l = j % 3;
+      if (f === 1) {
+        const y = getY(r)[l];
+        const qCount = r.v[j] || (y > 0 ? 1 : 0);
+        const cellText = (qCount || y) ? `${qCount}${y ? ` (${y})` : ''}` : '';
+        cells.push(new TableCell({ children: [new Paragraph({ text: cellText, alignment: AlignmentType.CENTER })] }));
+      } else {
+        cells.push(new TableCell({ children: [new Paragraph({ text: r.v[j] ? String(r.v[j]) : '', alignment: AlignmentType.CENTER })] }));
+      }
+    }
+
+    return new TableRow({ children: cells });
+  });
+
+  // 7. Specification Footer Totals
+  const specTotQCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tổng số câu', bold: true })] })],
+      columnSpan: 4,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.t.forEach((v, j) => {
+    const fi = (j / 3) | 0;
+    if (fi === 1) {
+      specTotQCells.push(
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: String(v), bold: true })], alignment: AlignmentType.CENTER })],
+          shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+        })
+      );
+    } else {
+      specTotQCells.push(
+        new TableCell({
+          children: [new Paragraph({ children: [new TextRun({ text: String(v), bold: true })], alignment: AlignmentType.CENTER })],
+          shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+        })
+      );
+    }
+  });
+
+  const specTotScoreCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tổng số điểm', bold: true })] })],
+      columnSpan: 4,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.f.forEach((v) => {
+    specTotScoreCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: formatNumber(v), bold: true })], alignment: AlignmentType.CENTER })],
+        columnSpan: 3,
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+
+  const specTotPctCells: TableCell[] = [
+    new TableCell({
+      children: [new Paragraph({ children: [new TextRun({ text: 'Tỉ lệ %', bold: true })] })],
+      columnSpan: 4,
+      shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+    }),
+  ];
+  S.f.forEach((v) => {
+    specTotPctCells.push(
+      new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text: `${formatNumber((v / Tt) * 100)}%`, bold: true })], alignment: AlignmentType.CENTER })],
+        columnSpan: 3,
+        shading: { fill: 'E8EEFE', type: ShadingType.CLEAR },
+      })
+    );
+  });
+
+  const specTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      ...specHeaderCells,
+      ...specDataRows,
+      new TableRow({ children: specTotQCells }),
+      new TableRow({ children: specTotScoreCells }),
+      new TableRow({ children: specTotPctCells }),
+    ],
+  });
+
+  const specFootnotesPara = new Paragraph({
+    children: [new TextRun({ text: `(6) ${FOOTNOTES_TEXT[6]}`, size: 20 })],
+    spacing: { before: 80 },
   });
 
   const doc = new Document({
@@ -369,15 +675,23 @@ export async function exportMatrixWord(
         },
         children: [
           new Paragraph({
-            children: [new TextRun({ text: title.toUpperCase(), bold: true })],
+            children: [new TextRun({ text: title.toUpperCase(), bold: true, size: 28 })],
             alignment: AlignmentType.CENTER,
             spacing: { after: 120 },
           }),
           new Paragraph({
-            children: [new TextRun({ text: '1. MA TRẬN ĐỀ KIỂM TRA ĐỊNH KÌ', bold: true })],
+            children: [new TextRun({ text: '1. MA TRẬN ĐỀ KIỂM TRA ĐỊNH KÌ', bold: true, size: 24 })],
             spacing: { before: 100, after: 100 },
           }),
           matrixTable,
+          ...footnotesParas,
+          new Paragraph({
+            children: [new TextRun({ text: '2. BẢN ĐẶC TẢ ĐỀ KIỂM TRA ĐỊNH KÌ', bold: true, size: 24 })],
+            spacing: { before: 240, after: 100 },
+            pageBreakBefore: true,
+          }),
+          specTable,
+          specFootnotesPara,
         ],
       },
     ],
@@ -588,14 +902,16 @@ export async function exportMatrixExcel(
 
   rows.forEach((r, i) => {
     const sp = r.s || ['', '', ''];
-    const specText = [
-      `- Biết: ${sp[0]}`,
-      `- Hiểu: ${sp[1]}`,
-      `- Vận dụng: ${sp[2]}`,
-      dsNote(r) ? dsNote(r) : '',
-    ]
-      .filter(Boolean)
-      .join('\n');
+    const q0 = (r.v[0] || 0) + (r.v[3] || 0) + (r.v[6] || 0) + (r.v[9] || 0);
+    const q1 = (r.v[1] || 0) + (r.v[4] || 0) + (r.v[7] || 0) + (r.v[10] || 0);
+    const q2 = (r.v[2] || 0) + (r.v[5] || 0) + (r.v[8] || 0) + (r.v[11] || 0);
+
+    const specLines: string[] = [];
+    if (q0 > 0 && sp[0]) specLines.push(`- Biết: ${sp[0]}`);
+    if (q1 > 0 && sp[1]) specLines.push(`- Hiểu: ${sp[1]}`);
+    if (q2 > 0 && sp[2]) specLines.push(`- Vận dụng: ${sp[2]}`);
+    if (dsNote(r)) specLines.push(dsNote(r));
+    const specText = specLines.join('\n');
 
     const row = [i + 1, r.c, r.n, specText];
     for (let j = 0; j < 12; j++) {
@@ -611,6 +927,72 @@ export async function exportMatrixExcel(
     A2.push(row);
   });
 
+  const specTotalRowIndex = A2.length;
+  const totQRow2: (string | number)[] = ['Tổng số câu', '', '', ''];
+  for (let j = 0; j < 12; j++) {
+    const f = (j / 3) | 0;
+    if (f === 1) {
+      totQRow2.push(S.t[j], '');
+      addMerge2(specTotalRowIndex, totQRow2.length - 2, specTotalRowIndex, totQRow2.length - 1);
+    } else {
+      totQRow2.push(S.t[j]);
+    }
+  }
+  addMerge2(specTotalRowIndex, 0, specTotalRowIndex, 3);
+  A2.push(totQRow2);
+
+  const specTotalScoreIndex = A2.length;
+  const totScoreRow2 = ['Tổng số điểm', '', '', ''];
+  totScoreRow2.push(
+    formatNumber(S.f[0]),
+    '',
+    '',
+    formatNumber(S.f[1]),
+    '',
+    '',
+    '',
+    '',
+    '',
+    formatNumber(S.f[2]),
+    '',
+    '',
+    formatNumber(S.f[3]),
+    '',
+    ''
+  );
+  addMerge2(specTotalScoreIndex, 0, specTotalScoreIndex, 3);
+  addMerge2(specTotalScoreIndex, 4, specTotalScoreIndex, 6);
+  addMerge2(specTotalScoreIndex, 7, specTotalScoreIndex, 12);
+  addMerge2(specTotalScoreIndex, 13, specTotalScoreIndex, 15);
+  addMerge2(specTotalScoreIndex, 16, specTotalScoreIndex, 18);
+  A2.push(totScoreRow2);
+
+  const specTotalPctIndex = A2.length;
+  const totPctRow2 = ['Tỉ lệ %', '', '', ''];
+  totPctRow2.push(
+    `${formatNumber((S.f[0] / Tt) * 100)}%`,
+    '',
+    '',
+    `${formatNumber((S.f[1] / Tt) * 100)}%`,
+    '',
+    '',
+    '',
+    '',
+    '',
+    `${formatNumber((S.f[2] / Tt) * 100)}%`,
+    '',
+    '',
+    `${formatNumber((S.f[3] / Tt) * 100)}%`,
+    '',
+    ''
+  );
+  addMerge2(specTotalPctIndex, 0, specTotalPctIndex, 3);
+  addMerge2(specTotalPctIndex, 4, specTotalPctIndex, 6);
+  addMerge2(specTotalPctIndex, 7, specTotalPctIndex, 12);
+  addMerge2(specTotalPctIndex, 13, specTotalPctIndex, 15);
+  addMerge2(specTotalPctIndex, 16, specTotalPctIndex, 18);
+  A2.push(totPctRow2);
+
   const ws2 = XLSX.utils.aoa_to_sheet(A2);
   ws2['!merges'] = M2;
 
@@ -625,7 +1007,7 @@ export async function exportMatrixExcel(
 export async function exportMatrixPDF(htmlContent: string, filename: string): Promise<void> {
   const container = document.createElement('div');
   container.style.cssText =
-    'position:fixed;left:-9999px;top:0;width:1200px;background:#fff;color:#000;padding:24px;font-family:Arial,sans-serif';
+    'position:fixed;left:-9999px;top:0;width:1400px;background:#fff;color:#000;padding:24px;font-family:"Times New Roman",serif';
   container.innerHTML = htmlContent;
   document.body.appendChild(container);
 
@@ -633,7 +1015,7 @@ export async function exportMatrixPDF(htmlContent: string, filename: string): Pr
     const canvas = await html2canvas(container, {
       scale: 1.5,
       backgroundColor: '#ffffff',
-      windowWidth: 1240,
+      windowWidth: 1440,
     });
     container.remove();
 

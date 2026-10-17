@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MatrixRow, QuestionPointConfig } from '../types';
+import { MatrixRow, QuestionPointConfig, StructureMode, SubjectName } from '../types';
 import {
   calculateRowLevelCounts,
   calculateRowScore,
@@ -7,11 +7,13 @@ import {
   formatNumber,
   getY,
   getZeroVector,
+  consolidateRowsByChapter,
+  distributeQuestions,
 } from '../utils/matrixCalculations';
-import { readFileText } from '../utils/fileReader';
+import { readFileText, fileToBase64 } from '../utils/fileReader';
 import { adjustMatrixWithAI } from '../services/geminiService';
 import { FOOTNOTES_TEXT } from '../constants/curriculumData';
-import { Plus, Trash2, Sparkles, Undo2, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Undo2, RotateCcw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 interface MatrixTableProps {
   rows: MatrixRow[];
@@ -21,7 +23,19 @@ interface MatrixTableProps {
   mon: string;
   grade: string;
   semester: string;
+  structureMode: StructureMode;
+  noTLN: boolean;
+  targetFormatPoints?: number[];
+  targetLevelPoints?: number[];
   onResetDefault: () => void;
+  ppctData?: {
+    text: string;
+    base64: string;
+    mimeType: string;
+    yccdText: string;
+    yccdBase64: string;
+    yccdMimeType: string;
+  };
 }
 
 export const MatrixTable: React.FC<MatrixTableProps> = ({
@@ -32,11 +46,18 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
   mon,
   grade,
   semester,
+  structureMode,
+  noTLN,
+  targetFormatPoints,
+  targetLevelPoints,
   onResetDefault,
+  ppctData,
 }) => {
   const [showAdjust, setShowAdjust] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiFileText, setAiFileText] = useState('');
+  const [aiFileBase64, setAiFileBase64] = useState('');
+  const [aiFileMimeType, setAiFileMimeType] = useState('');
   const [aiStatus, setAiStatus] = useState('');
   const [aiNotes, setAiNotes] = useState('');
   const [isAdjusting, setIsAdjusting] = useState(false);
@@ -71,13 +92,23 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
     const updated = [...rows];
     const r = { ...updated[rowIndex] };
     const newV = [...r.v];
-    const newY = [...getY(r)];
 
     if (isSubItem) {
+      const newY = [...getY(r)];
       newY[levelIdx] = Math.max(0, val);
       r.y = newY;
+      // Khi tăng hay giảm ý ở 1 ô hay cả 3 ô, số câu ở các ô có ý vẫn giữ nguyên là 1
+      newV[3] = newY[0] > 0 ? 1 : 0;
+      newV[4] = newY[1] > 0 ? 1 : 0;
+      newV[5] = newY[2] > 0 ? 1 : 0;
+      r.v = newV;
     } else {
-      newV[3 + levelIdx] = Math.max(0, val);
+      const qCount = Math.max(0, val);
+      newV[3 + levelIdx] = qCount;
+      r.y = [...getY(r)];
+      if (qCount === 0) {
+        r.y[levelIdx] = 0;
+      }
       r.v = newV;
     }
     updated[rowIndex] = r;
@@ -95,40 +126,39 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
         'Vận dụng vào bài toán, tình huống thực tế',
       ],
     };
-    onChange([...rows, newRow]);
+    const updated = [...rows, newRow];
+    const redistributed = distributeQuestions(updated, mon as SubjectName, structureMode, noTLN);
+    onChange(redistributed);
   };
 
   const handleDeleteRow = (index: number) => {
     const updated = rows.filter((_, i) => i !== index);
-    onChange(updated);
-  };
-
-  const handleFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !files.length) return;
-    try {
-      setAiStatus(`Đang đọc ${files.length} tệp...`);
-      let combined = '';
-      for (let i = 0; i < files.length; i++) {
-        const text = await readFileText(files[i]);
-        combined += `--- Tệp: ${files[i].name} ---\n${text.slice(0, 20000)}\n\n`;
-      }
-      setAiFileText(combined);
-      setAiStatus(`Đã đọc ${files.length} tệp (${combined.length} ký tự). Bấm Áp dụng yêu cầu.`);
-    } catch (err: any) {
-      setAiStatus(`Lỗi đọc tệp: ${err.message}`);
+    if (updated.length > 0) {
+      const redistributed = distributeQuestions(updated, mon as SubjectName, structureMode, noTLN);
+      onChange(redistributed);
+    } else {
+      onChange(updated);
     }
   };
 
-  const handleApplyAI = async () => {
-    if (!aiPrompt.trim() && !aiFileText.trim()) {
-      setAiStatus('Vui lòng nhập yêu cầu hoặc tải tệp lên trước khi áp dụng.');
-      return;
-    }
+  const applyAIWithParams = async (
+    customPrompt?: string,
+    fileTxt?: string,
+    fileB64?: string,
+    fileMime?: string
+  ) => {
+    const promptStr = typeof customPrompt === 'string' ? customPrompt : aiPrompt.trim();
+    const promptToUse = promptStr || `Đối chiếu, chuẩn hóa và cân đối lại ma trận và bản đặc tả môn ${mon} lớp ${grade} (${semester}) chuẩn GDPT 2018`;
+    
+    // Use attached file or fallback to uploaded PPCT/YCCD data from SettingsPanel
+    const combinedPpctYccdText = ppctData ? `${ppctData.text || ''}\n${ppctData.yccdText || ''}`.trim() : '';
+    const fTxt = fileTxt !== undefined ? fileTxt : (aiFileText || combinedPpctYccdText);
+    const fB64 = fileB64 !== undefined ? fileB64 : (aiFileBase64 || (ppctData ? (ppctData.base64 || ppctData.yccdBase64) : ''));
+    const fMime = fileMime !== undefined ? fileMime : (aiFileMimeType || (ppctData ? (ppctData.mimeType || ppctData.yccdMimeType) : ''));
 
     try {
       setIsAdjusting(true);
-      setAiStatus('Đang gọi AI Gemini để phân tích và điều chỉnh ma trận...');
+      setAiStatus('Đang tự động gọi AI Gemini phân tích tệp và điều chỉnh ma trận...');
       setPreviousHistory({
         rows: JSON.parse(JSON.stringify(rows)),
         points: { ...points },
@@ -140,47 +170,67 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
         semester,
         rows,
         points,
-        aiPrompt,
-        aiFileText
+        promptToUse,
+        fTxt,
+        fB64,
+        fMime
       );
 
       if (res && res.rows && res.rows.length > 0) {
         const updatedRows: MatrixRow[] = res.rows.map((r, i) => {
-          const old = rows[i];
-          const v = r.v.map((n) => Math.max(0, Math.round(n || 0)));
-          const y = [0, 0, 0];
+          const old = rows.find((row) => row.c.trim().toLowerCase() === r.c.trim().toLowerCase()) || rows[i];
+          const v = r.v ? r.v.map((n) => Math.max(0, Math.round(n || 0))) : (old ? old.v : getZeroVector());
+          let numDS = v[3] + v[4] + v[5];
           if (Array.isArray(r.ds)) {
-            v[3] = v[4] = v[5] = 0;
-            r.ds.forEach((q) => {
-              if (Array.isArray(q)) {
-                [0, 1, 2].forEach((l) => {
-                  const num = Math.max(0, Math.round(q[l] || 0));
-                  if (num > 0) {
-                    v[3 + l] += 1;
-                    y[l] += num;
-                  }
-                });
-              }
-            });
-          } else {
-            [0, 1, 2].forEach((l) => {
-              y[l] = v[3 + l] * 4;
-            });
+            numDS = Math.max(numDS, r.ds.length);
           }
+          const y = [0, 0, 0];
+          if (numDS > 0) {
+            v[3] = numDS;
+            v[4] = 0;
+            v[5] = 0;
+            y[0] = numDS * 2;
+            y[1] = numDS * 1;
+            y[2] = numDS * 1;
+          }
+
+          // Preserve uploaded or existing YCCD criteria (s) if AI returned empty or partial YCCD
+          let finalS: [string, string, string] = [
+            `Nhận biết các khái niệm cơ bản trong ${r.c}`,
+            `Hiểu và giải thích nội dung ${r.c}`,
+            `Vận dụng kiến thức ${r.c} giải quyết bài tập, tình huống thực tế`
+          ];
+
+          if (r.s && Array.isArray(r.s) && r.s.some((str) => str && str.trim())) {
+            finalS = [r.s[0] || '', r.s[1] || '', r.s[2] || ''];
+          } else if (old && old.s && Array.isArray(old.s) && old.s.some((str) => str && str.trim())) {
+            finalS = [old.s[0] || '', old.s[1] || '', old.s[2] || ''];
+          }
+
           return {
             c: r.c,
-            n: r.n || (old ? old.n : ''),
+            n: r.n || (fTxt ? `Nội dung ${r.c}` : (old ? old.n : '')),
             v,
             y,
-            s: r.s || (old ? old.s : undefined),
+            s: finalS,
           };
         });
 
-        onChange(updatedRows);
+        const finalRows = consolidateRowsByChapter(updatedRows);
+        const redistributed = distributeQuestions(
+          finalRows,
+          mon as SubjectName,
+          structureMode,
+          noTLN,
+          points,
+          targetFormatPoints,
+          targetLevelPoints
+        );
+        onChange(redistributed);
         if (res.pts) {
           onPointsChange({ ...points, ...res.pts });
         }
-        setAiStatus('Đã điều chỉnh ma trận và cập nhật bản đặc tả thành công!');
+        setAiStatus('Đã tự động điều chỉnh ma trận và cập nhật bản đặc tả thành công từ tệp!');
         setAiNotes(res.notes || '');
       } else {
         setAiStatus('Không nhận được dữ liệu ma trận hợp lệ từ AI.');
@@ -190,6 +240,45 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
     } finally {
       setIsAdjusting(false);
     }
+  };
+
+  const handleClearFile = () => {
+    setAiFileText('');
+    setAiFileBase64('');
+    setAiFileMimeType('');
+    setAiStatus('Đã xóa tệp đính kèm.');
+  };
+
+  const handleFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !files.length) return;
+    try {
+      setAiStatus(`Đang đọc ${files.length} tệp...`);
+      let combined = '';
+      let b64 = '';
+      let mime = 'application/pdf';
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const text = await readFileText(file);
+        const fileB64 = await fileToBase64(file);
+        combined += `=== TỆP ${i + 1} (${file.name}) ===\n${text.slice(0, 25000)}\n\n`;
+        if (i === 0) {
+          b64 = fileB64;
+          mime = file.type || 'application/pdf';
+        }
+      }
+      setAiFileText(combined);
+      setAiFileBase64(b64);
+      setAiFileMimeType(mime);
+      setAiStatus(`Đã đính kèm ${files.length} tệp thành công. Bấm "Áp dụng yêu cầu (AI)" bên dưới để điều chỉnh ma trận.`);
+    } catch (err: any) {
+      setAiStatus(`Lỗi đọc tệp: ${err.message}`);
+    }
+  };
+
+  const handleApplyAI = async (customPrompt?: string | React.MouseEvent) => {
+    const promptStr = typeof customPrompt === 'string' ? customPrompt : undefined;
+    await applyAIWithParams(promptStr);
   };
 
   const handleUndo = () => {
@@ -226,33 +315,80 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               rows={3}
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Nhập yêu cầu thay đổi ma trận tại đây..."
+              placeholder="Nhập yêu cầu thay đổi ma trận tại đây (hoặc click các nút gợi ý 1-click bên dưới)..."
               className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
+
+            {/* Quick 1-click prompts */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <span className="text-[11px] font-semibold text-slate-500 mr-1">⚡ Gợi ý 1 click:</span>
+              {[
+                'Cân đối ma trận & bản đặc tả chuẩn GDPT 2018',
+                'Phân bổ lại 4 dạng câu hỏi chuẩn 10.0đ',
+                'Bảo toàn 1 chương = 1 dòng duy nhất',
+                'Tối ưu tỉ lệ 40% Biết - 30% Hiểu - 30% Vận dụng',
+              ].map((pText) => (
+                <button
+                  key={pText}
+                  type="button"
+                  onClick={() => {
+                    setAiPrompt(pText);
+                    handleApplyAI(pText);
+                  }}
+                  disabled={isAdjusting}
+                  className="text-[11px] font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition active:scale-95"
+                >
+                  {pText}
+                </button>
+              ))}
+            </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <input
                 type="file"
                 multiple
-                accept=".docx,.xlsx,.xls,.csv,.txt"
+                accept=".docx,.pdf,.xlsx,.xls,.csv,.txt"
                 onChange={handleFilesUpload}
                 className="text-xs text-slate-500 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
               />
+
+              {(aiFileText || aiFileBase64) && (
+                <div className="inline-flex items-center gap-2 text-xs text-indigo-700 bg-indigo-50/80 px-2.5 py-1 rounded-md border border-indigo-100">
+                  <span className="font-medium">✓ Đã đính kèm tệp</span>
+                  <button
+                    type="button"
+                    onClick={handleClearFile}
+                    className="text-red-600 hover:text-red-800 hover:underline font-semibold inline-flex items-center gap-0.5"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    Xóa tệp
+                  </button>
+                </div>
+              )}
 
               <button
                 type="button"
                 onClick={handleApplyAI}
                 disabled={isAdjusting}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 shadow transition active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 disabled:opacity-60 shadow-sm transition active:scale-95 cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                {isAdjusting ? 'Đang điều chỉnh...' : 'Áp dụng yêu cầu (AI)'}
+                {isAdjusting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
+                    <span>Đang AI điều chỉnh...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>Áp dụng yêu cầu (AI)</span>
+                  </>
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={handleUndo}
-                disabled={!previousHistory}
+                disabled={!previousHistory || isAdjusting}
                 className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-medium hover:bg-slate-200 disabled:opacity-40 transition"
               >
                 <Undo2 className="w-3.5 h-3.5" />
@@ -262,7 +398,8 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <button
                 type="button"
                 onClick={onResetDefault}
-                className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-medium hover:bg-slate-200 transition"
+                disabled={isAdjusting}
+                className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-medium hover:bg-slate-200 transition disabled:opacity-50"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Về mặc định
@@ -270,8 +407,13 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
             </div>
 
             {aiStatus && (
-              <div className="text-xs text-indigo-700 bg-indigo-50 p-2.5 rounded-lg border border-indigo-100">
-                {aiStatus}
+              <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 ${
+                isAdjusting 
+                  ? 'bg-amber-50 text-amber-900 border-amber-200 animate-pulse font-medium' 
+                  : 'bg-indigo-50 text-indigo-800 border-indigo-200'
+              }`}>
+                {isAdjusting && <Loader2 className="w-4 h-4 animate-spin shrink-0 text-amber-600" />}
+                <span>{aiStatus}</span>
               </div>
             )}
             {aiNotes && (
@@ -306,7 +448,7 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <th rowSpan={4} className="border border-slate-300 p-2 w-10 text-center">TT</th>
               <th rowSpan={4} className="border border-slate-300 p-2 w-48 text-left">Chủ đề/Chương</th>
               <th rowSpan={4} className="border border-slate-300 p-2 w-64 text-left">Nội dung/đơn vị kiến thức</th>
-              <th colSpan={15} className="border border-slate-300 p-2 text-center bg-indigo-100/70">
+              <th colSpan={12} className="border border-slate-300 p-2 text-center bg-indigo-100/70">
                 Mức độ đánh giá
               </th>
               <th colSpan={3} rowSpan={3} className="border border-slate-300 p-2 text-center bg-blue-50">
@@ -320,7 +462,7 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
 
             {/* Row 2 */}
             <tr className="bg-indigo-50/60 text-slate-700 font-semibold border-b border-slate-300">
-              <th colSpan={12} className="border border-slate-300 p-1.5 text-center">TNKQ</th>
+              <th colSpan={9} className="border border-slate-300 p-1.5 text-center">TNKQ</th>
               <th colSpan={3} rowSpan={2} className="border border-slate-300 p-1.5 text-center bg-amber-50/50">
                 Tự luận
               </th>
@@ -329,7 +471,7 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
             {/* Row 3 */}
             <tr className="bg-indigo-50/40 text-slate-700 font-semibold border-b border-slate-300">
               <th colSpan={3} className="border border-slate-300 p-1 text-center">Nhiều lựa chọn</th>
-              <th colSpan={6} className="border border-slate-300 p-1 text-center">Đúng – Sai<sup>2</sup></th>
+              <th colSpan={3} className="border border-slate-300 p-1 text-center">Đúng – Sai<sup>2</sup></th>
               <th colSpan={3} className="border border-slate-300 p-1 text-center">Trả lời ngắn<sup>3</sup></th>
             </tr>
 
@@ -340,10 +482,10 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <th className="border border-slate-300 p-1 w-10 text-center">Hiểu</th>
               <th className="border border-slate-300 p-1 w-10 text-center">Vận dụng</th>
 
-              {/* ĐS (with sub-items) */}
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">Biết</th>
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">Hiểu</th>
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">Vận dụng</th>
+              {/* ĐS (Single column per level: câu + ý) */}
+              <th className="border border-slate-300 p-1 w-14 text-center">Biết</th>
+              <th className="border border-slate-300 p-1 w-14 text-center">Hiểu</th>
+              <th className="border border-slate-300 p-1 w-14 text-center">Vận dụng</th>
 
               {/* TLN */}
               <th className="border border-slate-300 p-1 w-10 text-center">Biết</th>
@@ -377,21 +519,21 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
 
                   {/* Chapter/Topic */}
                   <td className="border border-slate-300 p-1">
-                    <input
-                      type="text"
+                    <textarea
+                      rows={Math.min(4, Math.max(1, (r.c || '').split('\n').length))}
                       value={r.c}
                       onChange={(e) => handleRowTextChange(i, 'c', e.target.value)}
-                      className="w-full bg-transparent px-1.5 py-1 text-xs text-slate-800 font-medium rounded hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-transparent px-1.5 py-1 text-xs text-slate-800 font-semibold rounded hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 resize-y whitespace-pre-line leading-relaxed"
                     />
                   </td>
 
                   {/* Subtopics */}
                   <td className="border border-slate-300 p-1">
-                    <input
-                      type="text"
+                    <textarea
+                      rows={Math.min(6, Math.max(1, (r.n || '').split('\n').length))}
                       value={r.n}
                       onChange={(e) => handleRowTextChange(i, 'n', e.target.value)}
-                      className="w-full bg-transparent px-1.5 py-1 text-xs text-slate-700 rounded hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-transparent px-1.5 py-1 text-xs text-slate-700 rounded hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 resize-y whitespace-pre-line leading-relaxed"
                     />
                   </td>
 
@@ -408,70 +550,70 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
                     </td>
                   ))}
 
-                  {/* ĐS Biết (Câu + Ý) */}
-                  <td className="border-y border-l border-slate-300 p-0.5 text-center">
+                  {/* ĐS Biết (Single cell: câu + (ý)) */}
+                  <td className="border border-slate-300 p-0.5 text-center whitespace-nowrap">
                     <input
                       type="number"
                       min="0"
-                      value={r.v[3] || ''}
+                      value={getY(r)[0] > 0 ? (r.v[3] || 1) : ''}
                       onChange={(e) => handleDSCellChange(i, 0, Number(e.target.value) || 0, false)}
-                      className="w-7 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium"
+                      className="w-5 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium inline-block"
+                      title="Số câu lớn"
                     />
-                  </td>
-                  <td className="border-y border-r border-slate-300 p-0.5 text-center text-[11px] text-slate-500 whitespace-nowrap">
-                    (
+                    <span className="text-slate-500 font-normal text-[11px] ml-0.5">(</span>
                     <input
                       type="number"
                       min="0"
                       value={getY(r)[0] || ''}
                       onChange={(e) => handleDSCellChange(i, 0, Number(e.target.value) || 0, true)}
-                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white"
+                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white font-medium inline-block"
+                      title="Số ý nhỏ"
                     />
-                    )
+                    <span className="text-slate-500 font-normal text-[11px]">)</span>
                   </td>
 
-                  {/* ĐS Hiểu (Câu + Ý) */}
-                  <td className="border-y border-l border-slate-300 p-0.5 text-center">
+                  {/* ĐS Hiểu (Single cell: câu + (ý)) */}
+                  <td className="border border-slate-300 p-0.5 text-center whitespace-nowrap">
                     <input
                       type="number"
                       min="0"
-                      value={r.v[4] || ''}
+                      value={getY(r)[1] > 0 ? (r.v[4] || 1) : ''}
                       onChange={(e) => handleDSCellChange(i, 1, Number(e.target.value) || 0, false)}
-                      className="w-7 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium"
+                      className="w-5 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium inline-block"
+                      title="Số câu lớn"
                     />
-                  </td>
-                  <td className="border-y border-r border-slate-300 p-0.5 text-center text-[11px] text-slate-500 whitespace-nowrap">
-                    (
+                    <span className="text-slate-500 font-normal text-[11px] ml-0.5">(</span>
                     <input
                       type="number"
                       min="0"
                       value={getY(r)[1] || ''}
                       onChange={(e) => handleDSCellChange(i, 1, Number(e.target.value) || 0, true)}
-                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white"
+                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white font-medium inline-block"
+                      title="Số ý nhỏ"
                     />
-                    )
+                    <span className="text-slate-500 font-normal text-[11px]">)</span>
                   </td>
 
-                  {/* ĐS Vận dụng (Câu + Ý) */}
-                  <td className="border-y border-l border-slate-300 p-0.5 text-center">
+                  {/* ĐS Vận dụng (Single cell: câu + (ý)) */}
+                  <td className="border border-slate-300 p-0.5 text-center whitespace-nowrap">
                     <input
                       type="number"
                       min="0"
-                      value={r.v[5] || ''}
+                      value={getY(r)[2] > 0 ? (r.v[5] || 1) : ''}
                       onChange={(e) => handleDSCellChange(i, 2, Number(e.target.value) || 0, false)}
-                      className="w-7 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium"
+                      className="w-5 text-center text-xs py-1 rounded bg-transparent hover:bg-slate-100 focus:bg-white focus:ring-1 focus:ring-indigo-500 font-medium inline-block"
+                      title="Số câu lớn"
                     />
-                  </td>
-                  <td className="border-y border-r border-slate-300 p-0.5 text-center text-[11px] text-slate-500 whitespace-nowrap">
-                    (
+                    <span className="text-slate-500 font-normal text-[11px] ml-0.5">(</span>
                     <input
                       type="number"
                       min="0"
                       value={getY(r)[2] || ''}
                       onChange={(e) => handleDSCellChange(i, 2, Number(e.target.value) || 0, true)}
-                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white"
+                      className="w-5 text-center text-[11px] p-0 rounded bg-transparent hover:bg-slate-100 focus:bg-white font-medium inline-block"
+                      title="Số ý nhỏ"
                     />
-                    )
+                    <span className="text-slate-500 font-normal text-[11px]">)</span>
                   </td>
 
                   {/* TLN B, H, V */}
@@ -539,10 +681,10 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <th className="border border-slate-300 p-1 text-center">{sums.t[1]}</th>
               <th className="border border-slate-300 p-1 text-center">{sums.t[2]}</th>
 
-              {/* ĐS (items count) */}
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">{sums.t[3]}</th>
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">{sums.t[4]}</th>
-              <th colSpan={2} className="border border-slate-300 p-1 text-center">{sums.t[5]}</th>
+              {/* ĐS (chỉ giữ lại tổng số ý của các mức độ) */}
+              <th className="border border-slate-300 p-1 text-center">{sums.t[3]}</th>
+              <th className="border border-slate-300 p-1 text-center">{sums.t[4]}</th>
+              <th className="border border-slate-300 p-1 text-center">{sums.t[5]}</th>
 
               {/* TLN */}
               <th className="border border-slate-300 p-1 text-center">{sums.t[6]}</th>
@@ -570,7 +712,7 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <th colSpan={3} className="border border-slate-300 p-1 text-center text-indigo-700">
                 {formatNumber(sums.f[0])}<sup>5</sup>
               </th>
-              <th colSpan={6} className="border border-slate-300 p-1 text-center text-indigo-700">
+              <th colSpan={3} className="border border-slate-300 p-1 text-center text-indigo-700">
                 {formatNumber(sums.f[1])}
               </th>
               <th colSpan={3} className="border border-slate-300 p-1 text-center text-indigo-700">
@@ -603,7 +745,7 @@ export const MatrixTable: React.FC<MatrixTableProps> = ({
               <th colSpan={3} className="border border-slate-300 p-1 text-center">
                 {formatNumber((sums.f[0] / Tt) * 100)}%
               </th>
-              <th colSpan={6} className="border border-slate-300 p-1 text-center">
+              <th colSpan={3} className="border border-slate-300 p-1 text-center">
                 {formatNumber((sums.f[1] / Tt) * 100)}%
               </th>
               <th colSpan={3} className="border border-slate-300 p-1 text-center">
