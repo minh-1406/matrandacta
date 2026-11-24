@@ -177,15 +177,15 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-4 py-3 shadow-sm mb-3 border border-slate-800 relative z-30">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+    <header className="rounded-xl bg-slate-900 text-white px-3.5 py-2.5 shadow-xs mb-2.5 border border-slate-800 relative z-30">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5">
         {/* Brand */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 p-1 flex items-center justify-center border border-indigo-400/30 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 p-1 flex items-center justify-center border border-indigo-400/30 shrink-0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 64 64"
-              className="w-8 h-8"
+              className="w-6 h-6"
               role="img"
               aria-label="Logo Ma trận và bản đặc tả"
             >
@@ -207,24 +207,19 @@ export const Header: React.FC<HeaderProps> = ({
               <rect x="38" y="44" width="7" height="3.5" rx="1" fill="#93c5fd" />
             </svg>
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white truncate">
-                Hệ thống Ma trận, Bản đặc tả & Ra đề kiểm tra
-              </h1>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-200 border border-teal-400/30 whitespace-nowrap">
-                Chuẩn CV 7991 & QĐ 764
-              </span>
-              <span
-                className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-200 border border-sky-400/30 whitespace-nowrap"
-                title="Ưu tiên 1: SGK Kết nối tri thức 2026 | Ưu tiên 2: Bộ SGK khác được Bộ GD&ĐT cấp phép lưu hành | Bắt buộc 100% trích dẫn nguồn"
-              >
-                📘 SGK Kết nối 2026 (Ưu tiên 1) & SGK Bộ GD&ĐT (Trích nguồn)
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 truncate">
-              Thiết kế ma trận, đặc tả YCCĐ và tạo bộ đề kiểm tra định kì chương trình GDPT 2018
-            </p>
+          <div className="min-w-0 flex items-center gap-2 flex-wrap">
+            <h1 className="text-sm sm:text-base font-bold tracking-tight text-white truncate">
+              Hệ thống Ma trận, Bản đặc tả & Ra đề kiểm tra
+            </h1>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-teal-500/20 text-teal-200 border border-teal-400/30 whitespace-nowrap">
+              CV 7991 & QĐ 764
+            </span>
+            <span
+              className="hidden sm:inline-block text-[11px] font-semibold px-2 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/30 whitespace-nowrap"
+              title="Ưu tiên 1: SGK Kết nối tri thức 2026 | Ưu tiên 2: Bộ SGK khác được Bộ GD&ĐT cấp phép lưu hành | Bắt buộc 100% trích dẫn nguồn"
+            >
+              SGK Kết nối 2026
+            </span>
           </div>
         </div>
 
@@ -235,9 +230,9 @@ export const Header: React.FC<HeaderProps> = ({
             {currentUser ? (
               <button
                 onClick={() => setIsAccountOpen((prev) => !prev)}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-white font-semibold text-xs shadow-xs transition active:scale-95 cursor-pointer whitespace-nowrap border ${
+                className={`inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-white font-semibold text-xs shadow-2xs transition active:scale-95 cursor-pointer whitespace-nowrap border ${
                   cloudSessionForRestore
-                    ? 'bg-gradient-to-r from-amber-600 to-indigo-600 border-amber-300 ring-2 ring-amber-400/50 animate-pulse'
+                    ? 'bg-amber-600 hover:bg-amber-500 border-amber-300'
                     : 'bg-indigo-700/80 hover:bg-indigo-600 border-indigo-400/30'
                 }`}
                 title="Quản lý tài khoản, đồng bộ & lịch sử phiên bản từ máy cũ"
@@ -258,7 +253,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
 
                 {cloudSessionForRestore ? (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-400 text-slate-950">
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-300 text-slate-950">
                     Máy cũ
                   </span>
                 ) : (
@@ -274,12 +269,11 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onOpenSyncModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer whitespace-nowrap border border-indigo-400/30"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-2xs transition active:scale-95 cursor-pointer whitespace-nowrap border border-indigo-400/30"
                 title="Mở bảng Đổi máy & Đăng nhập Google để lưu phiên"
               >
                 <Cloud className="w-3.5 h-3.5 text-indigo-200" />
                 <span>Đổi máy / Đồng bộ</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               </button>
             )}
 
@@ -502,7 +496,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-xs text-slate-200 transition cursor-pointer disabled:opacity-50"
                       >
                         <span className="flex items-center gap-2">
-                          <Upload className={`w-3.5 h-3.5 ${isSyncingNow ? 'animate-bounce text-indigo-400' : 'text-indigo-300'}`} />
+                          <Upload className={`w-3.5 h-3.5 ${isSyncingNow ? 'animate-spin text-indigo-400' : 'text-indigo-300'}`} />
                           <span>{isSyncingNow ? 'Đang tải lên...' : 'Lưu bản máy này lên mây (Đồng bộ ngay)'}</span>
                         </span>
                         <span className="text-[10px] text-slate-400">Tức thì</span>

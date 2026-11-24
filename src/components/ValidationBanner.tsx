@@ -73,7 +73,7 @@ export const ValidationBanner: React.FC<ValidationBannerProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           {valResult.hasErrors ? (
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 animate-pulse" />
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
           ) : valResult.hasWarnings ? (
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
           ) : (

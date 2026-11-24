@@ -846,8 +846,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
-      <main className="max-w-[1360px] mx-auto px-3 sm:px-6 pt-4 sm:pt-6">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-12">
+      <main className="max-w-[1360px] mx-auto px-3 sm:px-5 pt-3 sm:pt-4">
         {/* Header with collapsed account session picker */}
         <Header
           onExportWord={handleExportWord}
@@ -907,41 +907,41 @@ export default function App() {
         </div>
 
         {/* Unified Step Navigation & Context Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 bg-white border border-slate-200 p-1.5 rounded-xl mb-3 shadow-2xs noprint">
-          <nav className="flex items-center gap-1.5 overflow-x-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 bg-white border border-slate-200 p-1 rounded-xl mb-2.5 shadow-2xs noprint">
+          <nav className="flex items-center gap-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab('mt')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition active:scale-95 cursor-pointer ${
                 activeTab === 'mt'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-indigo-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <TableProperties className="w-4 h-4" />
+              <TableProperties className="w-3.5 h-3.5" />
               <span>1. Ma trận đề kiểm tra</span>
             </button>
 
             <button
               onClick={() => setActiveTab('dt')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition active:scale-95 cursor-pointer ${
                 activeTab === 'dt'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-indigo-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-3.5 h-3.5" />
               <span>2. Bản đặc tả đề kiểm tra</span>
             </button>
 
             <button
               onClick={() => setActiveTab('qt')}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition active:scale-95 cursor-pointer ${
                 activeTab === 'qt'
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-indigo-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <Sparkles className={`w-4 h-4 ${activeTab === 'qt' ? 'text-amber-300' : 'text-indigo-500'}`} />
+              <Sparkles className={`w-3.5 h-3.5 ${activeTab === 'qt' ? 'text-amber-300' : 'text-indigo-500'}`} />
               <span>3. Tạo đề kiểm tra & Đáp án</span>
             </button>
           </nav>

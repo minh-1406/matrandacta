@@ -836,9 +836,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             )}
 
             {reconcileStatus && (
-              <div className={`text-xs p-3 rounded-xl border flex items-center gap-2 ${
+              <div className={`text-xs p-2.5 rounded-xl border flex items-center gap-2 ${
                 isReconciling 
-                  ? 'bg-amber-50 text-amber-900 border-amber-200 animate-pulse font-medium' 
+                  ? 'bg-amber-50 text-amber-900 border-amber-200 font-medium' 
                   : 'bg-indigo-50 text-indigo-800 border-indigo-200'
               }`}>
                 {isReconciling && <Loader2 className="w-4 h-4 animate-spin shrink-0 text-amber-600" />}

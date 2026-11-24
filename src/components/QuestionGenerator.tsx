@@ -102,6 +102,7 @@ import {
   PenTool,
   Filter,
   BarChart3,
+  Loader2,
 } from 'lucide-react';
 
 export function sortQuestionsByOrderMode(
@@ -2323,32 +2324,14 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs sm:text-sm font-bold shadow-xs hover:bg-indigo-700 disabled:opacity-50 transition active:scale-95 cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs sm:text-sm font-bold shadow-2xs hover:bg-indigo-700 disabled:opacity-50 transition active:scale-95 cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
               <span>{isGenerating ? 'Đang tạo bộ đề...' : `Tạo bộ đề kiểm tra (${totals.allTotal} câu)`}</span>
             </button>
-
-            {customPrompt.trim() && (
-              <button
-                type="button"
-                onClick={() => {
-                  setShowRefFiles(true);
-                  setTimeout(() => customPromptTextareaRef.current?.focus(), 100);
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs font-medium hover:bg-amber-100 transition shadow-2xs cursor-pointer max-w-[280px] sm:max-w-[340px]"
-                title="Yêu cầu cụ thể của giáo viên trước khi tạo đề (nhấp để xem/sửa)"
-              >
-                <PenTool className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                <span className="truncate">
-                  <strong className="text-amber-800">Yêu cầu:</strong> "{customPrompt.trim()}"
-                </span>
-                <span className="text-[10px] text-amber-700 font-bold underline shrink-0">Sửa</span>
-              </button>
-            )}
           </div>
 
-          {/* Right Quick Actions: Upload / Library / Save */}
+          {/* Right Quick Actions: Upload / Library / Fix / Save */}
           <div className="flex flex-wrap items-center gap-1.5">
             <button
               type="button"
@@ -2375,17 +2358,17 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
                 type="button"
                 onClick={handleFixComplianceErrors}
                 disabled={isGenerating}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold transition active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
-                title="Sửa đề đúng 100% theo bộ quy tắc khảo thí khóa cứng (CV 7991, 8773, QĐ 764): độ dài, số vế, 4/4 đúng sai, số liệu, đáp án"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold transition active:scale-95 shadow-2xs cursor-pointer whitespace-nowrap"
+                title="Sửa đề đúng 100% theo bộ quy tắc khảo thí khóa cứng (CV 7991, 8773, QĐ 764)"
               >
                 <ShieldCheck className="w-4 h-4 text-emerald-200" />
-                <span>Sửa đề chuẩn 100% quy tắc khóa cứng</span>
+                <span>Sửa đề chuẩn 100%</span>
                 {complianceResult && complianceResult.warnings.length > 0 ? (
-                  <span className="px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-black rounded-full animate-pulse">
+                  <span className="px-1.5 py-0.2 bg-rose-500 text-white text-[10px] font-black rounded-full">
                     {complianceResult.warnings.length} lỗi
                   </span>
                 ) : (
-                  <span className="text-[10px] bg-emerald-800/60 text-emerald-200 px-1.5 py-0.5 rounded-full font-semibold">
+                  <span className="text-[10px] bg-teal-900/60 text-emerald-200 px-1.5 py-0.5 rounded-full font-semibold">
                     100%
                   </span>
                 )}
@@ -2407,43 +2390,34 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
         </div>
 
         {/* Bottom Row: Secondary Configuration Tool Tabs (All Collapsed by Default) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 pt-2 border-t border-slate-100">
           <div className="flex flex-wrap items-center gap-1.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 text-xs font-semibold mr-1" title="Tuân thủ duy nhất 1 bộ SGK mới nhất hiện hành (bộ Kết nối tri thức với cuộc sống, NXB GDVN) & Tự động cập nhật nội dung, số liệu thực tiễn mới hiện hành">
-              <BookOpen className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span>Căn cứ: <strong>Duy nhất 1 bộ SGK mới nhất (Kết nối tri thức) & Tự cập nhật nội dung mới</strong></span>
-            </div>
-
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
-              Tùy chỉnh:
-            </span>
-
             <button
               type="button"
               onClick={() => setShowHeaderConfig(!showHeaderConfig)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showHeaderConfig
                   ? 'bg-indigo-600 text-white border-indigo-600'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Tiêu đề đề thi ({headerConfig.thoiGianLamBai || '50'}p)</span>
+              <span>Tiêu đề ({headerConfig.thoiGianLamBai || '50'}p)</span>
               {showHeaderConfig ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
               onClick={() => setShowAiEnginePanel(!showAiEnginePanel)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showAiEnginePanel
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-600 shadow-2xs'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                   : 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <Sparkles className={`w-3.5 h-3.5 ${showAiEnginePanel ? 'text-amber-300' : 'text-indigo-600'}`} />
               <span>
-                Mô hình AI: {aiEngineConfig.engine === 'claude' ? 'Claude Sonnet' : aiEngineConfig.engine === 'chatgpt' ? 'ChatGPT (GPT-4o)' : aiEngineConfig.engine === 'notebooklm' ? 'NotebookLM SGK' : aiEngineConfig.engine === 'gemini' ? 'Gemini 2.5' : 'Đa Trí Tuệ Nhân Tạo'}
+                AI: {aiEngineConfig.engine === 'claude' ? 'Claude Sonnet' : aiEngineConfig.engine === 'chatgpt' ? 'ChatGPT' : aiEngineConfig.engine === 'notebooklm' ? 'NotebookLM' : aiEngineConfig.engine === 'gemini' ? 'Gemini 2.5' : 'Đa AI'}
               </span>
               {showAiEnginePanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
@@ -2451,7 +2425,7 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
             <button
               type="button"
               onClick={() => setShowPromptParamsPanel(!showPromptParamsPanel)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showPromptParamsPanel
                   ? 'bg-teal-700 text-white border-teal-700 shadow-2xs'
                   : (aiEngineConfig.promptParams?.complexity && aiEngineConfig.promptParams.complexity !== 'standard') ||
@@ -2463,104 +2437,83 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
               title="Tùy chỉnh độ phức tạp câu hỏi, phong cách ngôn ngữ và độ ưu tiên chủ đề cho AI tạo đề"
             >
               <Sliders className={`w-3.5 h-3.5 ${showPromptParamsPanel ? 'text-white' : 'text-teal-600'}`} />
-              <span>Tham số Prompt nâng cao</span>
+              <span>Tham số Prompt</span>
               {showPromptParamsPanel ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
               onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showAdvancedOptions
                   ? 'bg-indigo-600 text-white border-indigo-600'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
               <Hash className="w-3.5 h-3.5" />
-              <span>Mã đề ({codeDigits} số) & Tùy chọn AI</span>
+              <span>Mã đề & Tùy chọn</span>
               {showAdvancedOptions ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
               onClick={() => setShowQuestionConfig(!showQuestionConfig)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showQuestionConfig
                   ? 'bg-indigo-600 text-white border-indigo-600'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>Phân bổ & Thứ tự câu ({totals.allTotal} câu)</span>
+              <span>Thứ tự câu ({totals.allTotal})</span>
               {showQuestionConfig ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
               onClick={() => setShowRefFiles(!showRefFiles)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showRefFiles
                   ? 'bg-indigo-600 text-white border-indigo-600'
-                  : refFiles.length > 0
-                  ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                  : refFiles.length > 0 || customPrompt.trim()
+                  ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
+              title="Tải tài liệu tham khảo và gõ yêu cầu nội dung cụ thể trước khi tạo đề"
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Tài liệu tham khảo ({refFiles.length})</span>
+              <PenTool className="w-3.5 h-3.5" />
+              <span>
+                Tài liệu ({refFiles.length}) & Yêu cầu {customPrompt.trim() ? '✓' : ''}
+              </span>
               {showRefFiles ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                setShowRefFiles(true);
-                setTimeout(() => customPromptTextareaRef.current?.focus(), 100);
-              }}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
-                customPrompt.trim()
-                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold border-amber-500 shadow-2xs'
-                  : showRefFiles
-                  ? 'bg-amber-50 text-amber-900 border-amber-300'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-              }`}
-              title="Gõ yêu cầu nội dung cụ thể trước khi tạo đề để hệ thống nắm rõ và ra đề chính xác 100%"
-            >
-              <PenTool className={`w-3.5 h-3.5 ${customPrompt.trim() ? 'text-slate-950' : 'text-amber-600'}`} />
-              <span>
-                Yêu cầu ra đề {customPrompt.trim() ? `✓ (${customPrompt.trim().length} ký tự)` : ''}
-              </span>
-              {customPrompt.trim() && (
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              )}
-            </button>
-
-            <button
-              type="button"
               onClick={() => setShowCustomStudio(!showCustomStudio)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showCustomStudio
                   ? 'bg-indigo-900 text-amber-300 border-indigo-800'
                   : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Tự soạn câu hỏi lẻ</span>
+              <span>Soạn câu lẻ</span>
               {showCustomStudio ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
 
             <button
               type="button"
               onClick={() => setShowRules(!showRules)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer whitespace-nowrap ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition active:scale-95 cursor-pointer whitespace-nowrap ${
                 showRules
-                  ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
-                  : 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                  ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
               }`}
-              title="Tra cứu toàn văn từng điều khoản quy tắc, cơ sở văn bản (VB), tập huấn (TH), kỹ thuật khảo thí (KT) và phương pháp kiểm tra"
+              title="Tra cứu toàn văn điều khoản quy tắc khảo thí"
             >
               <ShieldCheck className={`w-3.5 h-3.5 ${showRules ? 'text-white' : 'text-emerald-600'}`} />
-              <span>Bộ quy tắc khảo thí cứng ({mon === 'Địa lí' ? 'Địa lí: 84 điều' : 'Chung: 56 điều'})</span>
+              <span>Quy tắc ({mon === 'Địa lí' ? '84' : '56'} điều)</span>
               {showRules ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
           </div>
@@ -2570,36 +2523,16 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
               <button
                 onClick={handleRegenerateFailed}
                 disabled={isGenerating}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition active:scale-95 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Soạn lại {failedTopics.length} phần lỗi</span>
               </button>
             )}
 
-            {currentQuestions.length > 0 && (
-              <button
-                onClick={handleFixComplianceErrors}
-                disabled={isGenerating}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer ${
-                  complianceResult && complianceResult.warnings.length > 0
-                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xs'
-                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
-                }`}
-                title="Tự động đọc lại toàn bộ đề, đối chiếu bộ quy tắc khảo thí khóa cứng và sửa triệt để 100% lỗi"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>
-                  {complianceResult && complianceResult.warnings.length > 0
-                    ? `Sửa đề chuẩn 100% (${complianceResult.warnings.length} lỗi)`
-                    : 'Sửa đề chuẩn 100% (Khóa cứng)'}
-                </span>
-              </button>
-            )}
-
             <button
               onClick={handleSuggestSources}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition active:scale-95 cursor-pointer"
               title="Gợi ý nguồn tài liệu uy tín ngoài SGK"
             >
               <ExternalLink className="w-3 h-3 text-indigo-600" />
@@ -5447,34 +5380,34 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
 
       {/* Live 3-Stage Closed-Loop Pipeline Progress Indicator (when generating) */}
       {generationStageStatus && (
-        <div className="bg-gradient-to-r from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-2xl p-4 shadow-md border border-indigo-700/80 noprint space-y-3">
+        <div className="bg-slate-900 text-white rounded-xl p-3 shadow-xs border border-slate-800 noprint space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-400 animate-pulse" />
-              <span className="text-xs sm:text-sm font-extrabold tracking-wide text-amber-300">
-                QUY TRÌNH RA ĐỀ KHÉP KÍN 3 BƯỚC (KHÓA CỨNG QUY TẮC → TỰ ĐỌC LẠI ĐỐI CHIẾU → TỰ SỬA & XUẤT BẢN CHUẨN)
+              <Loader2 className="w-4 h-4 text-amber-300 animate-spin" />
+              <span className="text-xs font-bold text-amber-300">
+                QUY TRÌNH RA ĐỀ KHÉP KÍN 3 BƯỚC ({generationStageStatus.step}/3): {generationStageStatus.label}
               </span>
             </div>
-            <span className="text-[11px] font-bold bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 px-2.5 py-0.5 rounded-full">
-              Đang thực thi Bước {generationStageStatus.step}/3
+            <span className="text-[11px] text-slate-300">
+              {generationStageStatus.detail}
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
             {[
               {
                 step: 1,
-                title: '1. Đọc kỹ & Khóa cứng quy tắc',
-                desc: `Nạp cứng ${mon === 'Địa lí' ? '84 quy tắc Địa lí THPT' : '56 quy tắc khảo thí chung'} trước khi ra đề`,
+                title: '1. Khóa cứng quy tắc',
+                desc: `Nạp ${mon === 'Địa lí' ? '84 quy tắc Địa lí' : '56 quy tắc khảo thí'}`,
               },
               {
                 step: 2,
-                title: '2. Soạn đề theo khung khóa cứng',
-                desc: 'Thiết lập 4 phần (NLC, Đ/S, TLN, TL) đồng bộ số vế, độ dài & ma trận YCCĐ',
+                title: '2. Soạn đề theo khung',
+                desc: 'Thiết lập 4 phần đồng bộ ma trận YCCĐ',
               },
               {
                 step: 3,
-                title: '3. Tự đọc lại, Đối chiếu & Tự sửa',
-                desc: 'Đọc lại toàn đề, tự đối chiếu từng điều khoản, sửa triệt để và xuất Bản chuẩn cuối cùng',
+                title: '3. Tự đối chiếu & Xuất bản',
+                desc: 'Hậu kiểm và chuẩn hóa Bản cuối cùng',
               },
             ].map((item) => {
               const isActive = generationStageStatus.step === item.step;
@@ -5482,369 +5415,183 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
               return (
                 <div
                   key={item.step}
-                  className={`p-2.5 rounded-xl border transition ${
+                  className={`p-2 rounded-lg border transition ${
                     isActive
-                      ? 'bg-indigo-900/90 border-amber-400 text-white shadow-xs'
+                      ? 'bg-indigo-900/90 border-amber-400 text-white'
                       : isDone
-                      ? 'bg-emerald-900/50 border-emerald-500/50 text-emerald-100'
-                      : 'bg-white/5 border-white/10 text-slate-300'
+                      ? 'bg-emerald-900/40 border-emerald-500/40 text-emerald-100'
+                      : 'bg-white/5 border-white/10 text-slate-400'
                   }`}
                 >
                   <div className="font-bold flex items-center justify-between gap-1">
                     <span>{item.title}</span>
                     {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-                    {isActive && <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin shrink-0" />}
+                    {isActive && <Loader2 className="w-3.5 h-3.5 text-amber-300 animate-spin shrink-0" />}
                   </div>
-                  <p className="text-[11px] opacity-85 mt-0.5">{item.desc}</p>
+                  <p className="text-[11px] opacity-80">{item.desc}</p>
                 </div>
               );
             })}
           </div>
-          <div className="text-xs text-indigo-100 bg-black/25 px-3 py-2 rounded-xl border border-white/10">
-            <b className="text-amber-300">{generationStageStatus.label}:</b> {generationStageStatus.detail}
-          </div>
         </div>
       )}
 
-      {/* Compliance Check Results & 3-Stage Closed-Loop Certification Report */}
+      {/* Compact Compliance Check Results Bar */}
       {complianceResult && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm noprint space-y-3">
+        <div className="bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 shadow-2xs noprint space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               {complianceResult.warnings.length === 0 ? (
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               ) : (
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
               )}
-              <div>
-                <b className="text-xs sm:text-sm font-extrabold text-slate-900 block">
-                  Chứng nhận Quy trình Khép kín 3 Bước: Khóa cứng Quy tắc → Tự đọc lại Đối chiếu → Bản chuẩn cuối cùng
-                </b>
-                <span className="text-[11px] text-slate-500">
-                  Áp dụng tự động cho{' '}
-                  <b className="text-indigo-700">
-                    {mon === 'Địa lí'
-                      ? 'Bộ quy tắc ra đề & rà soát môn Địa lí THPT (84 điều khoản cứng)'
-                      : `Bộ quy tắc rà soát đề kiểm tra trắc nghiệm chung (56 điều khoản cứng - môn ${mon})`}
-                  </b>
+              <span className="text-xs font-bold text-slate-800">
+                {complianceResult.warnings.length === 0
+                  ? `Đề đạt chuẩn 100% quy tắc khảo thí (${mon === 'Địa lí' ? '84 điều Địa lí' : '56 điều chung'})`
+                  : `Phát hiện ${complianceResult.warnings.length} điểm cần chuẩn hóa theo quy tắc khảo thí`}
+              </span>
+              {closedLoopAuditReport && (
+                <span className="hidden sm:inline-block text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+                  Đã qua {closedLoopAuditReport.passesExecuted} lượt hậu kiểm tự động
                 </span>
-              </div>
+              )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={handleRunComplianceCheck}
-                className="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition cursor-pointer"
-                title="Đọc lại toàn bộ đề, đối chiếu từng điều khoản quy tắc cứng và tự động chuẩn hóa nếu có điểm lệch"
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition active:scale-95 cursor-pointer"
+                title="Đọc lại toàn bộ đề và đối chiếu quy tắc cứng"
               >
-                🔍 Tự đọc lại & Đối chiếu lại ngay
+                Đối chiếu lại
               </button>
 
               <button
                 type="button"
                 onClick={handleFixComplianceErrors}
                 disabled={isGenerating}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 active:scale-95 disabled:opacity-50 cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 disabled:opacity-50 cursor-pointer ${
                   complianceResult.warnings.length > 0
-                    ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white'
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white'
                     : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 }`}
-                title="Tự động đọc lại, đối chiếu bộ quy tắc cứng và sửa triệt để 100% câu lỗi để ra Bản chuẩn cuối cùng"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-white" />
                 <span>
                   {complianceResult.warnings.length > 0
-                    ? `Sửa đề chuẩn 100% quy tắc khóa cứng (${complianceResult.warnings.length} điểm)`
-                    : 'Sửa & Chứng nhận chuẩn 100% quy tắc khóa cứng'}
+                    ? `Sửa chuẩn 100% (${complianceResult.warnings.length})`
+                    : 'Chuẩn hóa lại'}
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsCritiqueStudioOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-indigo-950 hover:bg-slate-900 text-amber-300 text-xs font-bold shadow-xs transition flex items-center gap-1.5 active:scale-95 cursor-pointer"
-                title="Mở Hội đồng Phản biện Đề thi Chuyên sâu theo chuẩn khảo thí Bộ GD&ĐT"
+                className="px-2.5 py-1 rounded-lg bg-indigo-950 hover:bg-slate-900 text-amber-300 text-xs font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer"
+                title="Mở Hội đồng Phản biện Đề thi Chuyên sâu"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Phản biện chuyên sâu</span>
+                <span>Phản biện</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setComplianceResult(null)}
-                title="Đóng / Ẩn bảng chứng nhận rà soát này"
-                className="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition inline-flex items-center gap-1 text-xs font-medium cursor-pointer"
+                title="Ẩn thanh rà soát"
+                className="text-slate-400 hover:text-rose-600 p-1 rounded-lg transition text-xs cursor-pointer"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Ẩn</span>
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* 3-Stage Closed-Loop Verification Cards */}
-          {closedLoopAuditReport && (
-            <div className="space-y-2.5 pt-1">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
-                <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-3 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-indigo-950 flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] flex items-center justify-center font-black">
-                        1
-                      </span>
-                      Khóa cứng quy tắc trước khi ra đề
-                    </span>
-                    <span className="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">
-                      {closedLoopAuditReport.lockMetadata.totalRules} điều khoản
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-indigo-900/90 leading-relaxed">
-                    Đã nạp và khóa cứng <b>{closedLoopAuditReport.lockMetadata.rulebookTitle}</b> làm khung bắt buộc trước khi sinh từng câu hỏi.
-                  </p>
-                </div>
-
-                <div className="bg-teal-50/70 border border-teal-200/80 rounded-xl p-3 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-teal-950 flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full bg-teal-600 text-white text-[11px] flex items-center justify-center font-black">
-                        2
-                      </span>
-                      Tự đọc lại & Đối chiếu sau khi có đề
-                    </span>
-                    <span className="text-[10px] font-bold bg-teal-700 text-white px-2 py-0.5 rounded-full">
-                      {closedLoopAuditReport.passesExecuted} lượt rà soát
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-teal-900/90 leading-relaxed">
-                    {closedLoopAuditReport.initialIssuesDetected > 0 ? (
-                      <>
-                        Hệ thống tự đọc lại đề nháp, phát hiện <b>{closedLoopAuditReport.initialIssuesDetected} điểm lệch</b> (độ dài/số vế đáp án, thể thức...) và tự động sửa sạch.
-                      </>
-                    ) : (
-                      <>
-                        Hệ thống đã tự đọc lại toàn bộ câu hỏi & phương án, đối chiếu từng điều khoản từ Nhóm A đến Nhóm H.
-                      </>
-                    )}
-                  </p>
-                </div>
-
-                <div className="bg-emerald-50/80 border border-emerald-300/90 rounded-xl p-3 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-emerald-950 flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] flex items-center justify-center font-black">
-                        3
-                      </span>
-                      Bản chuẩn cuối cùng
-                    </span>
-                    <span className="text-[10px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
-                      {complianceResult.warnings.length === 0 ? 'Đạt chuẩn 100%' : `Còn ${complianceResult.warnings.length} lưu ý`}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-emerald-900/90 leading-relaxed">
-                    Đề hiển thị bên dưới là <b>Bản chuẩn cuối cùng</b>: 4 phương án A/B/C/D đồng đều 1 vế (7–10 từ), không lỗi font, không lộ đáp án chéo.
-                  </p>
-                </div>
-              </div>
-
-              {/* 6 Rule-Group Checkpoints */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
-                {closedLoopAuditReport.verifiedCheckpoints.map((grp, gIdx) => (
-                  <div
-                    key={gIdx}
-                    className="flex items-start gap-2 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 text-[11px]"
+          {complianceResult.warnings.length > 0 && (
+            <ul className="space-y-1 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200/60 text-xs text-amber-900">
+              {complianceResult.warnings.map((w, wIdx) => (
+                <li key={wIdx} className="flex items-start justify-between gap-2">
+                  <span className="flex-1">• {w}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDismissWarning(wIdx)}
+                    title="Bỏ qua cảnh báo này"
+                    className="text-amber-500 hover:text-rose-600 transition p-0.5 rounded shrink-0 cursor-pointer"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-bold text-slate-800">
-                        [{grp.groupCode}] {grp.title}
-                      </div>
-                      <div className="text-slate-600">{grp.summary}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
-
-          {complianceResult.warnings.length === 0 ? (
-            <p className="text-xs text-emerald-800 font-semibold bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>
-                Bản chuẩn cuối cùng đáp ứng 100% bộ quy tắc khảo thí cứng ({mon === 'Địa lí' ? '84 điều khoản Địa lí THPT' : '56 điều khoản khảo thí chung'}): đồng bộ số vế & độ dài phương án A/B/C/D, chuẩn ma trận YCCĐ và 0 lỗi tồn đọng.
-              </span>
-            </p>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-xs text-amber-900 font-semibold">
-                Phát hiện {complianceResult.warnings.length} điểm cần điều chỉnh (bấm nút <b>"Tự đối chiếu & Sửa chuẩn 100%"</b> ở góc trên để hệ thống tự động sửa ngay):
-              </p>
-              <ul className="space-y-1.5 bg-amber-50/80 p-3 rounded-xl border border-amber-200/60 text-xs text-amber-800">
-                {complianceResult.warnings.map((w, wIdx) => (
-                  <li key={wIdx} className="flex items-start justify-between gap-2">
-                    <span className="flex-1">• {w}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleDismissWarning(wIdx)}
-                      title="Bỏ qua / Xóa cảnh báo này"
-                      className="text-amber-500 hover:text-rose-600 transition p-0.5 rounded shrink-0 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {complianceResult.infos.map((info, iIdx) => (
-            <div key={iIdx} className="text-[11.5px] text-slate-500">
-              • {info}
-            </div>
-          ))}
         </div>
       )}
 
       {/* 5. Exam Paper Preview (Supports Single, All Sets, Split 2 Sets, and Answer Comparison Matrix) */}
       {currentQuestions.length > 0 ? (
-        <div id="exam-preview-container" className="space-y-6">
-          {/* Cognitive Level Filter & Ratio Control Bar (GDPT 2018) */}
+        <div id="exam-preview-container" className="space-y-4">
+          {/* Compact Single-Row Cognitive Level Filter Bar */}
           {examViewMode !== 'matrix' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm noprint space-y-3.5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0">
-                    <Filter className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
-                      <span>Lọc câu hỏi & Kiểm soát tỷ lệ mức độ nhận thức</span>
-                      <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
-                        Chuẩn GDPT 2018
-                      </span>
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      Lọc xem theo từng mức độ để rà soát chất lượng câu hỏi và đối chiếu tỷ lệ điểm thực tế với ma trận.
-                    </p>
-                  </div>
-                </div>
+            <div className="bg-white border border-slate-200 rounded-xl px-3.5 py-2 shadow-2xs noprint flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1 mr-1">
+                  <Filter className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Lọc mức độ:</span>
+                </span>
 
-                {/* Target vs Actual Ratio Summary */}
-                <div className="flex items-center gap-2 text-xs shrink-0">
-                  <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-right">
-                    <span className="text-[10px] text-slate-500 block">Tỷ lệ điểm đề hiện tại:</span>
-                    <span className="font-bold text-indigo-900 text-xs font-mono">
-                      {cognitiveStats.pctB}% Biết · {cognitiveStats.pctH}% Hiểu · {cognitiveStats.pctV}% Vận dụng
-                    </span>
-                  </div>
-                  <div className="hidden lg:block bg-indigo-50/80 border border-indigo-200 px-3 py-1.5 rounded-xl text-right">
-                    <span className="text-[10px] text-indigo-600 block">Mục tiêu ma trận:</span>
-                    <span className="font-bold text-indigo-950 text-xs font-mono">
-                      {targetPctB}% · {targetPctH}% · {targetPctV}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Segmented Visual Ratio Bar */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
-                  <span className="flex items-center gap-1">
-                    <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Phân bố mức độ nhận thức ({cognitiveStats.totalQs} câu · {cognitiveStats.totalSc} điểm):</span>
-                  </span>
-                  <span className="text-[10.5px] text-slate-400">Nhấp vào từng nút bên dưới để lọc hiển thị câu hỏi</span>
-                </div>
-
-                <div className="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden flex shadow-inner border border-slate-200">
-                  <div
-                    style={{ width: `${cognitiveStats.pctB}%` }}
-                    className="bg-sky-500 transition-all duration-300 relative group cursor-pointer"
-                    onClick={() => setLevelFilter('B')}
-                    title={`Nhận biết: ${cognitiveStats.countB} câu · ${cognitiveStats.scoreB} điểm (${cognitiveStats.pctB}%)`}
-                  />
-                  <div
-                    style={{ width: `${cognitiveStats.pctH}%` }}
-                    className="bg-indigo-600 transition-all duration-300 relative group cursor-pointer"
-                    onClick={() => setLevelFilter('H')}
-                    title={`Thông hiểu: ${cognitiveStats.countH} câu · ${cognitiveStats.scoreH} điểm (${cognitiveStats.pctH}%)`}
-                  />
-                  <div
-                    style={{ width: `${cognitiveStats.pctV}%` }}
-                    className="bg-amber-500 transition-all duration-300 relative group cursor-pointer"
-                    onClick={() => setLevelFilter('V')}
-                    title={`Vận dụng: ${cognitiveStats.countV} câu · ${cognitiveStats.scoreV} điểm (${cognitiveStats.pctV}%)`}
-                  />
-                </div>
-              </div>
-
-              {/* Interactive Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setLevelFilter('ALL')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer active:scale-95 ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer active:scale-95 ${
                     levelFilter === 'ALL'
-                      ? 'bg-slate-900 text-white shadow-xs ring-2 ring-slate-400'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
-                  <span>Tất cả ({cognitiveStats.totalQs} câu)</span>
-                  <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded font-mono">100%</span>
+                  <span>Tất cả ({cognitiveStats.totalQs})</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setLevelFilter('B')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer active:scale-95 ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer active:scale-95 ${
                     levelFilter === 'B'
-                      ? 'bg-sky-600 text-white shadow-xs ring-2 ring-sky-300'
+                      ? 'bg-sky-600 text-white'
                       : 'bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-sky-400"></span>
-                  <span>1. Nhận biết</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${levelFilter === 'B' ? 'bg-white/20' : 'bg-sky-100'}`}>
-                    {cognitiveStats.countB} câu · {cognitiveStats.scoreB}đ ({cognitiveStats.pctB}%)
-                  </span>
+                  <span>Biết: {cognitiveStats.countB} câu ({cognitiveStats.pctB}%)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setLevelFilter('H')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer active:scale-95 ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer active:scale-95 ${
                     levelFilter === 'H'
-                      ? 'bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-300'
+                      ? 'bg-indigo-600 text-white'
                       : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100 border border-indigo-200'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
-                  <span>2. Thông hiểu</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${levelFilter === 'H' ? 'bg-white/20' : 'bg-indigo-100'}`}>
-                    {cognitiveStats.countH} câu · {cognitiveStats.scoreH}đ ({cognitiveStats.pctH}%)
-                  </span>
+                  <span>Hiểu: {cognitiveStats.countH} câu ({cognitiveStats.pctH}%)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setLevelFilter('V')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer active:scale-95 ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer active:scale-95 ${
                     levelFilter === 'V'
-                      ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-300'
+                      ? 'bg-amber-600 text-white'
                       : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                  <span>3. Vận dụng</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${levelFilter === 'V' ? 'bg-white/20' : 'bg-amber-100'}`}>
-                    {cognitiveStats.countV} câu · {cognitiveStats.scoreV}đ ({cognitiveStats.pctV}%)
-                  </span>
+                  <span>Vận dụng: {cognitiveStats.countV} câu ({cognitiveStats.pctV}%)</span>
                 </button>
 
                 {levelFilter !== 'ALL' && (
                   <button
                     type="button"
                     onClick={() => setLevelFilter('ALL')}
-                    className="ml-auto text-xs text-rose-600 hover:text-rose-800 font-bold underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-rose-600 hover:text-rose-800 font-bold underline flex items-center gap-0.5 ml-1 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Bỏ lọc</span>
@@ -5852,28 +5599,11 @@ export const QuestionGenerator: React.FC<QuestionGeneratorProps> = ({
                 )}
               </div>
 
-              {/* Active Filter Notice Banner */}
-              {levelFilter !== 'ALL' && (
-                <div className="flex items-center justify-between bg-amber-50/90 border border-amber-300/80 rounded-xl px-3.5 py-2 text-xs text-amber-950 animate-in fade-in duration-150">
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-amber-700 shrink-0" />
-                    <span>
-                      Đang lọc hiển thị các câu hỏi mức độ{' '}
-                      <b className="font-extrabold text-amber-900 underline">
-                        {levelFilter === 'B' ? 'Nhận biết (NB)' : levelFilter === 'H' ? 'Thông hiểu (TH)' : 'Vận dụng (VD)'}
-                      </b>{' '}
-                      (Giúp thầy/cô dễ dàng rà soát chất lượng & câu chữ). Các câu hỏi giữ nguyên số thứ tự gốc trong đề thi.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setLevelFilter('ALL')}
-                    className="bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg font-bold text-[11px] transition shrink-0 cursor-pointer shadow-2xs"
-                  >
-                    ✕ Xem toàn bộ đề
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center gap-2 text-xs text-slate-600">
+                <span className="font-mono text-[11px] bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+                  Thực tế: <b>{cognitiveStats.pctB}% · {cognitiveStats.pctH}% · {cognitiveStats.pctV}%</b> (Mục tiêu: {targetPctB}% · {targetPctH}% · {targetPctV}%)
+                </span>
+              </div>
             </div>
           )}
 
