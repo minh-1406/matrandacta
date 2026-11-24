@@ -50,105 +50,66 @@ const sm = (a: string[], b: string[]) =>
   });
 
 export const CURRICULUM_DATA: Record<string, Record<string, [string, number][] | number>> = {
-  Toán: {
+  Toán: mk({
     '10': [
-      ['Mệnh đề và tập hợp', 1],
-      ['Bất phương trình và hệ bất phương trình bậc nhất hai ẩn', 1],
-      ['Hệ thức lượng trong tam giác', 1],
-      ['Vectơ', 1],
-      ['Các số đặc trưng của mẫu số liệu không ghép nhóm', 1],
-      ['Hàm số, đồ thị và ứng dụng', 2],
-      ['Phương pháp tọa độ trong mặt phẳng', 2],
-      ['Đại số tổ hợp', 2],
-      ['Tính xác suất theo định nghĩa cổ điển', 2],
+      ['Mệnh đề và tập hợp', 'Bất phương trình và hệ bất phương trình bậc nhất hai ẩn', 'Hệ thức lượng trong tam giác', 'Vectơ', 'Các số đặc trưng của mẫu số liệu không ghép nhóm'],
+      ['Hàm số, đồ thị và ứng dụng', 'Phương pháp tọa độ trong mặt phẳng', 'Đại số tổ hợp', 'Tính xác suất theo định nghĩa cổ điển'],
     ],
     '11': [
-      ['Hàm số lượng giác và phương trình lượng giác', 1],
-      ['Dãy số, cấp số cộng và cấp số nhân', 1],
-      ['Các số đặc trưng đo xu thế trung tâm cho mẫu số liệu ghép nhóm', 1],
-      ['Quan hệ song song trong không gian', 1],
-      ['Giới hạn, hàm số liên tục', 1],
-      ['Hàm số mũ và hàm số lôgarit', 2],
-      ['Quan hệ vuông góc trong không gian', 2],
-      ['Các quy tắc tính xác suất', 2],
-      ['Đạo hàm', 2],
+      ['Hàm số lượng giác và phương trình lượng giác', 'Dãy số, cấp số cộng và cấp số nhân', 'Các số đặc trưng đo xu thế trung tâm cho mẫu số liệu ghép nhóm', 'Quan hệ song song trong không gian', 'Giới hạn, hàm số liên tục'],
+      ['Hàm số mũ và hàm số lôgarit', 'Quan hệ vuông góc trong không gian', 'Các quy tắc tính xác suất', 'Đạo hàm'],
     ],
     '12': [
-      ['Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số', 1],
-      ['Vectơ và hệ trục tọa độ trong không gian', 1],
-      ['Các số đặc trưng đo mức độ phân tán cho mẫu số liệu ghép nhóm', 1],
-      ['Nguyên hàm và tích phân', 2],
-      ['Phương pháp tọa độ trong không gian', 2],
-      ['Xác suất có điều kiện', 2],
+      ['Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số', 'Vectơ và hệ trục tọa độ trong không gian', 'Các số đặc trưng đo mức độ phân tán cho mẫu số liệu ghép nhóm'],
+      ['Nguyên hàm và tích phân', 'Phương pháp tọa độ trong không gian', 'Xác suất có điều kiện'],
     ],
-  },
-  'Vật lí': {
+  }),
+  'Vật lí': mk({
     '10': [
-      ['Mở đầu', 1],
-      ['Động học', 1],
-      ['Động lực học', 1],
-      ['Công, năng lượng, công suất', 2],
-      ['Động lượng', 2],
-      ['Chuyển động tròn', 2],
-      ['Biến dạng của vật rắn', 2],
+      ['Mở đầu', 'Động học', 'Động lực học'],
+      ['Công, năng lượng, công suất', 'Động lượng', 'Chuyển động tròn', 'Biến dạng của vật rắn'],
     ],
     '11': [
-      ['Dao động', 1],
-      ['Sóng', 1],
-      ['Trường điện', 2],
-      ['Dòng điện, mạch điện', 2],
+      ['Dao động', 'Sóng'],
+      ['Trường điện', 'Dòng điện, mạch điện'],
     ],
     '12': [
-      ['Vật lí nhiệt', 1],
-      ['Khí lí tưởng', 1],
-      ['Từ trường', 2],
-      ['Vật lí hạt nhân và phóng xạ', 2],
+      ['Vật lí nhiệt', 'Khí lí tưởng'],
+      ['Từ trường', 'Vật lí hạt nhân và phóng xạ'],
     ],
-  },
-  'Hóa học': {
+  }),
+  'Hóa học': mk({
     '10': [
-      ['Cấu tạo nguyên tử', 1],
-      ['Bảng tuần hoàn các nguyên tố hóa học', 1],
-      ['Liên kết hóa học', 1],
-      ['Phản ứng oxi hóa - khử', 1],
-      ['Năng lượng hóa học', 2],
-      ['Tốc độ phản ứng', 2],
-      ['Nguyên tố nhóm halogen', 2],
+      ['Cấu tạo nguyên tử', 'Bảng tuần hoàn các nguyên tố hóa học', 'Liên kết hóa học', 'Phản ứng oxi hóa - khử'],
+      ['Năng lượng hóa học', 'Tốc độ phản ứng', 'Nguyên tố nhóm halogen'],
     ],
     '11': [
-      ['Cân bằng hóa học', 1],
-      ['Nitrogen và sulfur', 1],
-      ['Đại cương về hóa học hữu cơ', 1],
-      ['Hydrocarbon', 2],
-      ['Dẫn xuất halogen - alcohol - phenol', 2],
-      ['Hợp chất carbonyl - carboxylic acid', 2],
+      ['Cân bằng hóa học', 'Nitrogen và sulfur', 'Đại cương về hóa học hữu cơ'],
+      ['Hydrocarbon', 'Dẫn xuất halogen - alcohol - phenol', 'Hợp chất carbonyl - carboxylic acid'],
     ],
     '12': [
-      ['Ester - lipid', 1],
-      ['Carbohydrate', 1],
-      ['Hợp chất chứa nitrogen', 1],
-      ['Polymer', 1],
-      ['Pin điện và điện phân', 2],
-      ['Đại cương về kim loại', 2],
-      ['Nguyên tố nhóm IA và IIA', 2],
-      ['Sơ lược kim loại chuyển tiếp dãy thứ nhất và phức chất', 2],
+      ['Ester - lipid', 'Carbohydrate', 'Hợp chất chứa nitrogen', 'Polymer'],
+      ['Pin điện và điện phân', 'Đại cương về kim loại', 'Nguyên tố nhóm IA và IIA', 'Sơ lược kim loại chuyển tiếp dãy thứ nhất và phức chất'],
     ],
-  },
+  }),
   'Địa lí': mk({
     '10': [
       [
-        'Chương 1. Một số vấn đề chung',
+        'Chương 1. Sử dụng bản đồ',
         'Chương 2. Trái Đất',
         'Chương 3. Thạch quyển',
         'Chương 4. Khí quyển',
         'Chương 5. Thủy quyển',
         'Chương 6. Sinh quyển',
+        'Chương 7. Một số quy luật của vỏ địa lí',
       ],
       [
-        'Chương 7. Địa lí dân cư',
-        'Chương 8. Các ngành kinh tế - Nông nghiệp, lâm nghiệp, thủy sản',
-        'Chương 9. Công nghiệp và Dịch vụ',
-        'Chương 10. Phát triển bền vững và bảo vệ môi trường',
+        'Chương 8. Địa lí dân cư',
+        'Chương 9. Các nguồn lực, một số tiêu chí đánh giá sự phát triển kinh tế',
+        'Chương 10. Địa lí ngành nông nghiệp, lâm nghiệp, thủy sản',
+        'Chương 11. Địa lí ngành công nghiệp',
+        'Chương 12. Địa lí ngành dịch vụ',
+        'Chương 13. Phát triển bền vững và tăng trưởng xanh',
       ],
     ],
     '11': [
@@ -171,19 +132,13 @@ export const CURRICULUM_DATA: Record<string, Record<string, [string, number][] |
     ],
     '12': [
       [
-        'Vị trí địa lí và phạm vi lãnh thổ Việt Nam',
-        'Thiên nhiên nhiệt đới ẩm gió mùa',
-        'Sử dụng hợp lí tài nguyên thiên nhiên và bảo vệ môi trường',
-        'Dân số, lao động và việc làm; đô thị hóa',
-        'Nông nghiệp, lâm nghiệp, thủy sản',
-        'Công nghiệp',
+        'Phần 1. Địa lí tự nhiên',
+        'Phần 2. Địa lí dân cư',
+        'Phần 3. Địa lí các ngành kinh tế',
       ],
       [
-        'Dịch vụ (giao thông, thương mại, du lịch)',
-        'Vùng Trung du và miền núi Bắc Bộ; Đồng bằng sông Hồng',
-        'Vùng Bắc Trung Bộ; Duyên hải Nam Trung Bộ; Tây Nguyên',
-        'Vùng Đông Nam Bộ; Đồng bằng sông Cửu Long',
-        'Phát triển kinh tế biển đảo, bảo vệ chủ quyền',
+        'Phần 4. Địa lí các vùng kinh tế – xã hội',
+        'Phần 5. Địa lí địa phương',
       ],
     ],
   }),
@@ -227,37 +182,38 @@ export const CURRICULUM_DATA: Record<string, Record<string, [string, number][] |
   'Lịch sử': mk({
     '10': [
       [
-        'Lịch sử và Sử học',
-        'Một số nền văn minh thế giới thời kì cổ - trung đại',
+        'Chủ đề 1. Lịch sử và Sử học',
+        'Chủ đề 2. Một số nền văn minh thế giới thời kì cổ - trung đại',
+        'Chủ đề 3. Các cuộc cách mạng công nghiệp trong lịch sử thế giới',
       ],
       [
-        'Một số nền văn minh trên đất Việt Nam',
-        'Văn minh Đông Nam Á',
-        'Cách mạng công nghiệp và toàn cầu hóa',
+        'Chủ đề 4. Văn minh Đông Nam Á cổ - trung đại',
+        'Chủ đề 5. Một số nền văn minh trên đất nước Việt Nam',
+        'Chủ đề 6. Cộng đồng các dân tộc Việt Nam',
       ],
     ],
     '11': [
       [
-        'Một số vấn đề chung về cách mạng tư sản',
-        'Chủ nghĩa xã hội từ năm 1917 đến nay',
-        'Quá trình giành độc lập dân tộc của các quốc gia Đông Nam Á',
+        'Chủ đề 1. Một số vấn đề chung về cách mạng tư sản',
+        'Chủ đề 2. Chủ nghĩa xã hội từ năm 1917 đến nay',
+        'Chủ đề 3. Quá trình giành độc lập dân tộc của các quốc gia Đông Nam Á',
       ],
       [
-        'Chiến tranh bảo vệ Tổ quốc trong lịch sử Việt Nam',
-        'Một số cuộc cải cách trong lịch sử Việt Nam',
-        'Lịch sử bảo vệ chủ quyền biển đảo Việt Nam',
+        'Chủ đề 4. Chiến tranh bảo vệ Tổ quốc trong lịch sử Việt Nam',
+        'Chủ đề 5. Một số cuộc cải cách lớn trong lịch sử Việt Nam',
+        'Chủ đề 6. Lịch sử bảo vệ chủ quyền, các quyền và lợi ích hợp pháp của Việt Nam ở Biển Đông',
       ],
     ],
     '12': [
       [
-        'Thế giới trong và sau Chiến tranh lạnh',
-        'Cộng đồng ASEAN',
-        'Cách mạng tháng Tám năm 1945 và kháng chiến chống thực dân Pháp',
+        'Chủ đề 1. Thế giới trong và sau Chiến tranh lạnh',
+        'Chủ đề 2. ASEAN: Những chặng đường lịch sử',
+        'Chủ đề 3. Cách mạng tháng Tám năm 1945 và chiến tranh giải phóng dân tộc, bảo vệ Tổ quốc trong lịch sử Việt Nam',
       ],
       [
-        'Kháng chiến chống Mỹ, cứu nước (1954-1975)',
-        'Công cuộc Đổi mới ở Việt Nam từ năm 1986',
-        'Lịch sử đối ngoại Việt Nam; Hồ Chí Minh trong lịch sử dân tộc',
+        'Chủ đề 4. Kháng chiến chống Mỹ, cứu nước (1954 - 1975) và chiến tranh bảo vệ Tổ quốc (từ 1975 đến nay)',
+        'Chủ đề 5. Công cuộc Đổi mới ở Việt Nam từ năm 1986 đến nay',
+        'Chủ đề 6. Lịch sử đối ngoại Việt Nam thời kì hiện đại; Hồ Chí Minh trong lịch sử dân tộc',
       ],
     ],
   }),
@@ -438,10 +394,10 @@ export const DETAILED_SPECS: Record<string, Record<string, [string, string, stri
   'Địa lí': {
     '10': [
       [
-        'Bài 1. Môn Địa lí với định hướng nghề nghiệp\nBài 2. Một số phương pháp biểu hiện các đối tượng địa lí trên bản đồ\nBài 3. Sử dụng bản đồ trong học tập và đời sống',
-        'Nêu được vai trò của môn Địa lí và một số ngành nghề liên quan; kể tên được các phương pháp biểu hiện đối tượng địa lí trên bản đồ.',
-        'Phân tích được mối quan hệ giữa kiến thức địa lí với các ngành nghề; phân biệt được đặc điểm các phương pháp biểu hiện.',
-        'Sử dụng bản đồ để xác định vị trí, tìm đường và giải quyết tình huống thực tế; liên hệ định hướng nghề nghiệp bản thân.',
+        'Bài 1. Môn Địa lí với định hướng nghề nghiệp\nBài 2. Một số phương pháp biểu hiện các đối tượng địa lí trên bản đồ\nBài 3. Sử dụng bản đồ trong học tập và đời sống, một số ứng dụng của GPS và bản đồ số trong đời sống',
+        'Nêu được vai trò của môn Địa lí và một số ngành nghề liên quan; kể tên được các phương pháp biểu hiện đối tượng địa lí trên bản đồ, ứng dụng của GPS và bản đồ số.',
+        'Phân tích được mối quan hệ giữa kiến thức địa lí với các ngành nghề; phân biệt được đặc điểm các phương pháp biểu hiện trên bản đồ; giải thích vai trò của GPS.',
+        'Sử dụng bản đồ và các ứng dụng GPS/bản đồ số để xác định vị trí, chỉ đường và giải quyết tình huống thực tế; liên hệ định hướng nghề nghiệp bản thân.',
       ],
       [
         'Bài 4. Hệ quả địa lí các chuyển động của Trái Đất',
@@ -580,70 +536,34 @@ export const DETAILED_SPECS: Record<string, Record<string, [string, string, stri
     ],
     '12': [
       [
-        'Vị trí địa lí và phạm vi lãnh thổ Việt Nam; ảnh hưởng đến tự nhiên, kinh tế - xã hội, quốc phòng',
-        'Xác định được vị trí địa lí, phạm vi lãnh thổ (đất liền, vùng biển, vùng trời).',
-        'Phân tích được ảnh hưởng của vị trí địa lí và phạm vi lãnh thổ đến tự nhiên, kinh tế - xã hội.',
-        'Vận dụng kiến thức để lập luận về chủ quyền biển đảo và phát triển kinh tế.',
+        'Bài 1. Vị trí địa lí và phạm vi lãnh thổ\nBài 2. Thiên nhiên nhiệt đới ẩm gió mùa\nBài 3. Sự phân hoá đa dạng của thiên nhiên\nBài 4. Thực hành: Viết báo cáo về sự phân hoá tự nhiên Việt Nam\nBài 5. Vấn đề sử dụng hợp lí tài nguyên thiên nhiên và bảo vệ môi trường\nBài 6. Thực hành: Tuyên truyền sử dụng hợp lí tài nguyên thiên nhiên hoặc bảo vệ môi trường ở địa phương',
+        'Xác định được vị trí địa lí, phạm vi lãnh thổ và các đặc điểm tự nhiên cốt lõi của Việt Nam.',
+        'Phân tích tính chất nhiệt đới ẩm gió mùa, sự phân hóa đa dạng của thiên nhiên và nguyên nhân suy thoái tài nguyên.',
+        'Viết báo cáo sự phân hóa tự nhiên; đề xuất giải pháp tuyên truyền sử dụng hợp lí tài nguyên và bảo vệ môi trường.',
       ],
       [
-        'Thiên nhiên nhiệt đới ẩm gió mùa; địa hình, khí hậu, sông ngòi, đất, sinh vật; sự phân hóa thiên nhiên',
-        'Trình bày được đặc điểm địa hình, khí hậu, sông ngòi, đất, sinh vật Việt Nam.',
-        'Giải thích được tính nhiệt đới ẩm gió mùa và sự phân hóa đa dạng của thiên nhiên.',
-        'Phân tích bản đồ, biểu đồ, bảng số liệu về khí hậu, thủy văn; liên hệ thiên nhiên địa phương.',
+        'Bài 7. Dân số Việt Nam\nBài 8. Lao động và việc làm\nBài 9. Đô thị hoá\nBài 10. Thực hành: Viết báo cáo về một chủ đề dân cư ở Việt Nam',
+        'Trình bày đặc điểm dân số, nguồn lao động, tình hình việc làm và quá trình đô thị hóa ở Việt Nam.',
+        'Phân tích ảnh hưởng của dân số, lao động và đô thị hóa đến phát triển kinh tế - xã hội.',
+        'Viết báo cáo về một chủ đề dân cư; đề xuất giải pháp giải quyết việc làm và đô thị hóa bền vững.',
       ],
       [
-        'Sử dụng hợp lí tài nguyên thiên nhiên; bảo vệ môi trường; phòng chống thiên tai; ứng phó biến đổi khí hậu',
-        'Nêu được hiện trạng sử dụng tài nguyên, các vấn đề môi trường, các loại thiên tai ở Việt Nam.',
-        'Giải thích nguyên nhân, hậu quả của suy thoái tài nguyên, thiên tai; vai trò của bảo vệ môi trường.',
-        'Đề xuất và vận dụng giải pháp bảo vệ tài nguyên, môi trường, ứng phó biến đổi khí hậu ở địa phương.',
+        'Bài 11. Chuyển dịch cơ cấu kinh tế\nBài 12. Vấn đề phát triển ngành nông nghiệp\nBài 13. Vấn đề phát triển ngành lâm nghiệp và thuỷ sản\nBài 14. Tổ chức lãnh thổ nông nghiệp\nBài 15. Thực hành: Tìm hiểu vai trò, tình hình phát triển...\nBài 16. Chuyển dịch cơ cấu ngành công nghiệp\nBài 17. Một số ngành công nghiệp\nBài 18. Một số hình thức tổ chức lãnh thổ công nghiệp\nBài 19. Thực hành: Vẽ biểu đồ...\nBài 20. Vai trò, các nhân tố ảnh hưởng...\nBài 21. Giao thông vận tải và bưu chính viễn thông\nBài 22. Thương mại và du lịch\nBài 23. Thực hành: Tìm hiểu sự phát triển một số ngành dịch vụ',
+        'Nêu đặc điểm, xu hướng chuyển dịch cơ cấu kinh tế, tình hình phát triển các ngành nông - lâm - thủy sản, công nghiệp, dịch vụ.',
+        'Giải thích sự phát triển, phân bố và các hình thức tổ chức lãnh thổ của nông nghiệp, công nghiệp, dịch vụ.',
+        'Vẽ và phân tích biểu đồ cơ cấu kinh tế; viết báo cáo tìm hiểu sự phát triển ngành dịch vụ ở địa phương.',
       ],
       [
-        'Dân số, lao động và việc làm; đô thị hóa; vấn đề dân cư ở Việt Nam',
-        'Trình bày được đặc điểm dân số, nguồn lao động, việc làm và đô thị hóa.',
-        'Giải thích được ảnh hưởng của dân số, lao động, đô thị hóa đến kinh tế - xã hội.',
-        'Phân tích số liệu, biểu đồ; đề xuất giải pháp giải quyết việc làm, nâng cao chất lượng dân số.',
+        'Bài 24. Khai thác thế mạnh ở Trung du và miền núi phía Bắc\nBài 25. Phát triển kinh tế – xã hội ở Đồng bằng sông Hồng\nBài 26. Thực hành: Tìm hiểu vấn đề phát triển kinh tế biển ở Đồng bằng sông Hồng\nBài 27. Phát triển kinh tế – xã hội ở Bắc Trung Bộ\nBài 28. Phát triển kinh tế – xã hội ở Duyên hải Nam Trung Bộ và Tây Nguyên\nBài 29. Thực hành: Phân tích ý nghĩa đối với quốc phòng, an ninh ở Duyên hải Nam Trung Bộ và Tây Nguyên\nBài 30. Phát triển kinh tế – xã hội ở Đông Nam Bộ\nBài 31. Sử dụng hợp lí tự nhiên để phát triển kinh tế ở Đồng bằng sông Cửu Long\nBài 32. Thực hành: Viết báo cáo về biến đổi khí hậu ở Đồng bằng sông Cửu Long\nBài 33. Phát triển kinh tế và đảm bảo quốc phòng, an ninh ở Biển Đông và các đảo\nBài 34. Thực hành: Viết báo cáo tuyên truyền về bảo vệ chủ quyền biển, đảo của Việt Nam',
+        'Trình bày thế mạnh, hạn chế, tình hình phát triển kinh tế - xã hội của các vùng kinh tế và vị trí chiến lược của Biển Đông.',
+        'Giải thích sự phát triển, phân bố kinh tế ở từng vùng và ý nghĩa của việc đảm bảo quốc phòng, an ninh trên Biển Đông.',
+        'Viết báo cáo về biến đổi khí hậu ĐBSCL; xây dựng bài tuyên truyền bảo vệ chủ quyền biển, đảo của Việt Nam.',
       ],
       [
-        'Nông nghiệp, lâm nghiệp, thủy sản: nhân tố ảnh hưởng, ngành trồng trọt, chăn nuôi, lâm nghiệp, thủy sản',
-        'Nêu được các nhân tố, đặc điểm phát triển, phân bố nông nghiệp, lâm nghiệp, thủy sản.',
-        'Giải thích được sự phát triển, phân bố và xu hướng của từng ngành; ý nghĩa của nông nghiệp công nghệ cao.',
-        'Phân tích bảng số liệu, biểu đồ; đề xuất giải pháp phát triển nông nghiệp bền vững.',
-      ],
-      [
-        'Công nghiệp: cơ cấu ngành, các ngành công nghiệp chủ yếu, tổ chức lãnh thổ công nghiệp',
-        'Nêu được đặc điểm, cơ cấu và phân bố công nghiệp; các ngành chủ yếu.',
-        'Giải thích được sự phát triển, phân bố của các ngành, trung tâm công nghiệp.',
-        'Phân tích số liệu, biểu đồ công nghiệp; đánh giá tác động của công nghiệp hóa đến môi trường.',
-      ],
-      [
-        'Dịch vụ: giao thông vận tải, bưu chính viễn thông, thương mại, du lịch',
-        'Trình bày được đặc điểm, phân bố của giao thông vận tải, viễn thông, thương mại, du lịch.',
-        'Giải thích được sự phát triển, phân bố các ngành dịch vụ; tiềm năng du lịch.',
-        'Phân tích số liệu dịch vụ; đề xuất giải pháp phát triển du lịch, thương mại ở địa phương.',
-      ],
-      [
-        'Vùng Trung du và miền núi Bắc Bộ; Đồng bằng sông Hồng: thế mạnh, hạn chế, các ngành kinh tế',
-        'Xác định được vị trí, nêu được thế mạnh, hạn chế và các ngành kinh tế nổi bật của hai vùng.',
-        'Giải thích được sự phát triển, phân bố các ngành kinh tế; ý nghĩa của vùng kinh tế trọng điểm.',
-        'Phân tích bản đồ, số liệu; đề xuất hướng phát triển kinh tế bền vững của mỗi vùng.',
-      ],
-      [
-        'Vùng Bắc Trung Bộ; Duyên hải Nam Trung Bộ; Tây Nguyên: thế mạnh, hạn chế, các ngành kinh tế',
-        'Xác định được vị trí, nêu được thế mạnh, hạn chế và các ngành kinh tế nổi bật của ba vùng.',
-        'Giải thích được sự phát triển, phân bố các ngành kinh tế, vai trò của kinh tế biển, cây công nghiệp.',
-        'Phân tích bản đồ, số liệu; đề xuất giải pháp phát triển kinh tế - xã hội bền vững.',
-      ],
-      [
-        'Vùng Đông Nam Bộ; Đồng bằng sông Cửu Long: thế mạnh, hạn chế, các ngành kinh tế',
-        'Xác định được vị trí, nêu được thế mạnh, hạn chế và các ngành kinh tế nổi bật của hai vùng.',
-        'Giải thích được sự phát triển, phân bố các ngành; vai trò của vùng kinh tế trọng điểm phía Nam.',
-        'Phân tích bản đồ, số liệu; đề xuất giải pháp thích ứng biến đổi khí hậu, phát triển bền vững.',
-      ],
-      [
-        'Phát triển kinh tế biển đảo; bảo vệ chủ quyền biển đảo Việt Nam',
-        'Nêu được tiềm năng, các ngành kinh tế biển và vấn đề chủ quyền biển đảo.',
-        'Giải thích được ý nghĩa của phát triển kinh tế biển gắn với bảo vệ chủ quyền, an ninh quốc phòng.',
-        'Vận dụng kiến thức lập luận về phát triển kinh tế biển bền vững và bảo vệ chủ quyền biển đảo.',
+        'Bài 35. Thực hành: Tìm hiểu Địa lí địa phương',
+        'Nêu các nội dung chính về vị trí, tự nhiên, dân cư, kinh tế - xã hội của địa phương.',
+        'Phân tích được các đặc điểm tự nhiên, kinh tế - xã hội và tiềm năng phát triển của tỉnh/thành phố.',
+        'Viết và trình bày báo cáo tìm hiểu địa lí tỉnh/thành phố nơi em sinh sống.',
       ],
     ],
   },
@@ -1144,25 +1064,37 @@ export const DETAILED_SPECS: Record<string, Record<string, [string, string, stri
   'Lịch sử': {
     '10': [
       [
-        'Lịch sử và Sử học: Khái niệm, đối tượng, chức năng, nhiệm vụ; Chức năng của Sử học đối với đời sống',
-        'Nhận biết đối tượng, chức năng, nhiệm vụ của Sử học; các nguồn sử liệu.',
-        'Giải thích mối quan hệ giữa Lịch sử và Sử học, vai trò của Sử học đối với các ngành khoa học.',
-        'Vận dụng kiến thức lịch sử giải thích hiện tượng xã hội và bảo tồn di sản văn hóa.',
+        'Bài 1. Hiện thực lịch sử và nhận thức lịch sử\nBài 2. Tri thức lịch sử và cuộc sống\nBài 3. Sử học với các lĩnh vực khoa học khác\nBài 4. Sử học với một số lĩnh vực, ngành nghề hiện đại',
+        'Nhận biết đối tượng, chức năng, nhiệm vụ của Sử học; các nguồn sử liệu; vai trò của tri thức lịch sử và di sản.',
+        'Giải thích mối quan hệ giữa Lịch sử và Sử học; phân tích vai trò của Sử học đối với các ngành khoa học và đời sống.',
+        'Vận dụng kiến thức lịch sử giải thích hiện tượng xã hội, liên hệ thực tế và đề xuất giải pháp bảo tồn di sản văn hóa.',
       ],
       [
-        'Một số nền văn minh thế giới thời cổ - trung đại: Văn minh Ai Cập, Ấn Độ, Trung Hoa, Hy Lạp - La Mã',
+        'Bài 5. Khái niệm văn minh. Văn minh phương Đông thời kì cổ - trung đại\nBài 6. Một số nền văn minh phương Tây thời kì cổ - trung đại',
         'Nhận biết cơ sở hình thành, các thành tựu chủ yếu của các nền văn minh Ai Cập, Ấn Độ, Trung Hoa, Hy Lạp - La Mã.',
         'Phân tích ý nghĩa và đóng góp của các thành tựu văn minh cổ - trung đại đối với nhân loại.',
         'Vận dụng liên hệ ảnh hưởng của văn minh Trung Hoa, Ấn Độ đến văn hóa Việt Nam.',
       ],
       [
-        'Một số nền văn minh trên đất nước Việt Nam: Văn minh Văn Lang - Âu Lạc, Chăm-pa, Phù Nam, Đại Việt',
+        'Bài 7. Các cuộc cách mạng công nghiệp thời kì hiện đại\nBài 8. Tác động của các cuộc cách mạng công nghiệp',
+        'Nhận biết bối cảnh lịch sử, những thành tựu cơ bản của các cuộc cách mạng công nghiệp.',
+        'Phân tích tác động của các cuộc cách mạng công nghiệp đối với kinh tế, xã hội, văn hóa thế giới.',
+        'Liên hệ bối cảnh cuộc Cách mạng công nghiệp 4.0 đối với học tập và đời sống hiện nay.',
+      ],
+      [
+        'Bài 9. Hành trình phát triển và thành tựu của văn minh Đông Nam Á',
+        'Nhận biết vị trí địa lí, cơ sở hình thành và các giai đoạn phát triển của văn minh Đông Nam Á.',
+        'Giải thích các thành tựu tiêu biểu về kiến trúc, điêu khắc, tín ngưỡng, chữ viết của Đông Nam Á.',
+        'Đánh giá giá trị di sản văn hóa Đông Nam Á và sự giao lưu văn hóa với Việt Nam.',
+      ],
+      [
+        'Bài 10. Văn minh Văn Lang - Âu Lạc\nBài 11. Văn minh Chăm-pa và Phù Nam\nBài 12. Văn minh Đại Việt',
         'Nhận biết cơ sở hình thành, thành tựu đời sống vật chất, tinh thần của văn minh Văn Lang - Âu Lạc, Chăm-pa, Phù Nam, Đại Việt.',
         'Phân tích sự kế thừa, phát triển và đặc trưng nổi bật của văn minh Đại Việt qua các thời kì.',
         'Vận dụng kiến thức lịch sử đánh giá giá trị di sản văn hóa dân tộc và trách nhiệm bảo tồn.',
       ],
       [
-        'Cộng đồng các dân tộc Việt Nam: Các họ ngôn ngữ, đời sống vật chất và tinh thần',
+        'Bài 13. Cộng đồng các dân tộc Việt Nam',
         'Nhận biết các thành phần dân tộc, họ ngôn ngữ, đặc điểm văn hóa truyền thống các dân tộc.',
         'Giải thích mối quan hệ đoàn kết, gắn bó giữa các dân tộc trong lịch sử dựng nước và giữ nước.',
         'Vận dụng tinh thần đại đoàn kết dân tộc trong xây dựng và bảo vệ Tổ quốc hiện nay.',
@@ -1170,54 +1102,78 @@ export const DETAILED_SPECS: Record<string, Record<string, [string, string, stri
     ],
     '11': [
       [
-        'Một số vấn đề chung về cách mạng tư sản: Nguyên nhân, mục tiêu, nhiệm vụ, giai cấp lãnh đạo, kết quả và ý nghĩa',
+        'Bài 1. Một số vấn đề chung về cách mạng tư sản\nBài 2. Sự phát triển của chủ nghĩa tư bản',
         'Nhận biết tiền đề kinh tế, chính trị, tư tưởng của các cuộc cách mạng tư sản bối cảnh thế giới.',
         'Phân tích mục tiêu, nhiệm vụ, động lực, giai cấp lãnh đạo và ý nghĩa của các cuộc cách mạng tư sản.',
         'Rút ra đặc điểm chung và bài học lịch sử từ các cuộc cách mạng tư sản.',
       ],
       [
-        'Chủ nghĩa xã hội từ năm 1917 đến nay: Sự ra đời của Nhà nước Xô viết, sự phát triển và công cuộc đổi mới, chủ nghĩa xã hội hiện đại',
+        'Bài 3. Sự hình thành và phát triển của chủ nghĩa xã hội\nBài 4. Chủ nghĩa xã hội từ năm 1991 đến nay',
         'Nhận biết sự ra đời của Liên Xô, sự mở rộng chủ nghĩa xã hội sau Chiến tranh thế giới thứ hai.',
         'Giải thích nguyên nhân khủng hoảng, sụp đổ của mô hình CNXH ở Liên Xô và Đông Âu; thành tựu đổi mới ở Trung Quốc, Việt Nam.',
         'Đánh giá sức sống và triển vọng của chủ nghĩa xã hội trong thời đại ngày nay.',
       ],
       [
-        'Quá trình giành độc lập dân tộc của các quốc gia Đông Nam Á',
+        'Bài 5. Quá trình xâm lược và đô hộ của chủ nghĩa thực dân ở Đông Nam Á\nBài 6. Hành trình giành độc lập dân tộc ở Đông Nam Á',
         'Nhận biết các giai đoạn xâm lược của chủ nghĩa thực dân và phong trào đấu tranh giành độc lập ở Đông Nam Á.',
         'Phân tích hình thức, đặc điểm, nguyên nhân thắng lợi của phong trào giải phóng dân tộc ở Đông Nam Á.',
         'Liên hệ phong trào giải phóng dân tộc ở Đông Nam Á với cách mạng Việt Nam.',
       ],
       [
-        'Chiến tranh bảo vệ Tổ quốc và một số cuộc cải cách trong lịch sử Việt Nam',
-        'Nhận biết các cuộc kháng chiến chống ngoại xâm tiêu biểu và các cuộc cải cách (Hồ Quý Ly, Lê Thánh Tông, Minh Mạng).',
-        'Phân tích nguyên nhân thắng lợi, bài học kinh nghiệm của các cuộc kháng chiến và nội dung, ý nghĩa các cuộc cải cách.',
+        'Bài 7. Khái quát về chiến tranh bảo vệ Tổ quốc trong lịch sử Việt Nam\nBài 8. Một số cuộc kháng chiến thắng lợi tiêu biểu\nBài 9. Một số cuộc kháng chiến không thành công',
+        'Nhận biết các cuộc kháng chiến chống ngoại xâm tiêu biểu trong lịch sử dựng nước và giữ nước của dân tộc Việt Nam.',
+        'Phân tích nguyên nhân thắng lợi, nguyên nhân không thành công và bài học kinh nghiệm của các cuộc chiến tranh bảo vệ Tổ quốc.',
         'Vận dụng bài học lịch sử dựng nước và giữ nước vào công cuộc bảo vệ chủ quyền quốc gia hiện nay.',
+      ],
+      [
+        'Bài 10. Cuộc cải cách của Hồ Quý Ly và triều Hồ\nBài 11. Cuộc cải cách của Lê Thánh Tông\nBài 12. Cuộc cải cách của Minh Mạng',
+        'Nhận biết bối cảnh, nội dung cốt lõi của các cuộc cải cách của Hồ Quý Ly, Lê Thánh Tông, Minh Mạng.',
+        'Phân tích kết quả, ý nghĩa và bài học kinh nghiệm của các cuộc cải cách trong lịch sử phong kiến Việt Nam.',
+        'Đánh giá giá trị của các cuộc cải cách lịch sử đối với công cuộc đổi mới, cải cách hành chính hiện nay.',
+      ],
+      [
+        'Bài 13. Vị trí chiến lược và lịch sử bảo vệ chủ quyền ở Biển Đông',
+        'Nhận biết vị trí chiến lược của Biển Đông và quần đảo Hoàng Sa, Trường Sa; quá trình xác lập chủ quyền của Việt Nam.',
+        'Giải thích tầm quan trọng của Biển Đông về kinh tế, quốc phòng, an ninh và cơ sở pháp lí khẳng định chủ quyền của Việt Nam.',
+        'Thể hiện trách nhiệm của học sinh trong việc tham gia bảo vệ chủ quyền biển đảo thiêng liêng của Tổ quốc.',
       ],
     ],
     '12': [
       [
-        'Thế giới trong và sau Chiến tranh lạnh; Cộng đồng ASEAN',
-        'Nhận biết sự hình thành trật tự hai cực Ianta, các giai đoạn Chiến tranh lạnh, sự thành lập ASEAN.',
-        'Phân tích nguyên nhân chấm dứt Chiến tranh lạnh, xu thế phát triển thế giới đa cực, vai trò của ASEAN.',
-        'Đánh giá cơ hội, thách thức đối với Việt Nam trong hội nhập quốc tế và khu vực.',
+        'Bài 1. Liên Hợp Quốc\nBài 2. Trật tự thế giới trong và sau Chiến tranh lạnh',
+        'Nhận biết sự hình thành trật tự hai cực Ianta, vai trò của Liên Hợp Quốc, các giai đoạn Chiến tranh lạnh.',
+        'Phân tích nguyên nhân chấm dứt Chiến tranh lạnh và xu thế phát triển của thế giới đa cực hiện nay.',
+        'Đánh giá thời cơ, thách thức đối với Việt Nam trong bối cảnh thế giới đa cực, hội nhập quốc tế.',
       ],
       [
-        'Cách mạng tháng Tám năm 1945 và cuộc kháng chiến chống thực dân Pháp (1945 - 1954)',
-        'Nhận biết diễn biến Cách mạng tháng Tám, các chiến dịch Việt Bắc, Biên giới, Điện Biên Phủ.',
-        'Phân tích nguyên nhân thắng lợi, ý nghĩa lịch sử của Cách mạng tháng Tám và kháng chiến chống Pháp.',
+        'Bài 3. Sự thành lập và phát triển của ASEAN\nBài 4. Cộng đồng ASEAN: Từ ý tưởng đến hiện thực',
+        'Nhận biết bối cảnh thành lập, mục tiêu, các mốc phát triển chính của ASEAN và sự ra đời của Cộng đồng ASEAN.',
+        'Phân tích vai trò của ASEAN đối với khu vực Đông Nam Á và mối quan hệ hợp tác giữa Việt Nam với ASEAN.',
+        'Đánh giá vị thế của Việt Nam trong Cộng đồng ASEAN và trách nhiệm công dân ASEAN.',
+      ],
+      [
+        'Bài 5. Cách mạng tháng Tám năm 1945\nBài 6. Cuộc kháng chiến chống thực dân Pháp (1945 - 1954)',
+        'Nhận biết diễn biến Cách mạng tháng Tám 1945, các chiến dịch Việt Bắc, Biên giới, Điện Biên Phủ.',
+        'Phân tích nguyên nhân thắng lợi, ý nghĩa lịch sử của Cách mạng tháng Tám và cuộc kháng chiến chống Pháp.',
         'Rút ra bài học kinh nghiệm về chớp thời cơ, đường lối kháng chiến toàn dân, toàn diện.',
       ],
       [
-        'Cuộc kháng chiến chống Mỹ, cứu nước (1954 - 1975)',
+        'Bài 7. Cuộc kháng chiến chống Mỹ, cứu nước (1954 - 1975)\nBài 8. Đấu tranh bảo vệ Tổ quốc từ sau năm 1975',
         'Nhận biết các chiến lược chiến tranh của Mỹ và các chiến công tiêu biểu (Mậu Thân 1968, Điện Biên Phủ trên không, Tổng tiến công Mùa Xuân 1975).',
-        'Phân tích nguyên nhân thắng lợi, ý nghĩa lịch sử của cuộc kháng chiến chống Mỹ, cứu nước.',
+        'Phân tích nguyên nhân thắng lợi, ý nghĩa lịch sử của cuộc kháng chiến chống Mỹ, cứu nước và bảo vệ biên giới.',
         'Đánh giá tầm vóc thời đại và bài học kinh nghiệm về kết hợp sức mạnh dân tộc với sức mạnh thời đại.',
       ],
       [
-        'Công cuộc Đổi mới ở Việt Nam từ năm 1986 đến nay; Lịch sử đối ngoại và vai trò Hồ Chí Minh',
-        'Nhận biết đường lối Đổi mới của Đảng, các thành tựu kinh tế, xã hội, đối ngoại nổi bật.',
-        'Phân tích nguyên nhân thành công của công cuộc Đổi mới; vai trò vĩ đại của Chủ tịch Hồ Chí Minh.',
-        'Vận dụng bài học công cuộc Đổi mới vào công cuộc công nghiệp hóa, hiện đại hóa đất nước.',
+        'Bài 9. Đổi mới ở Việt Nam từ năm 1986 đến nay\nBài 10. Thành tựu của công cuộc Đổi mới',
+        'Nhận biết đường lối Đổi mới của Đảng, các thành tựu kinh tế, xã hội, văn hóa nổi bật từ năm 1986 đến nay.',
+        'Phân tích nguyên nhân thành công, ý nghĩa lịch sử của công cuộc Đổi mới đất nước.',
+        'Vận dụng bài học công cuộc Đổi mới vào công cuộc công nghiệp hóa, hiện đại hóa đất nước hiện nay.',
+      ],
+      [
+        'Bài 11. Lịch sử đối ngoại Việt Nam thời kì hiện đại\nBài 12. Thành tựu đối ngoại và vai trò của Chủ tịch Hồ Chí Minh',
+        'Nhận biết các giai đoạn phát triển của đối ngoại Việt Nam thời kì hiện đại và vai trò của Chủ tịch Hồ Chí Minh.',
+        'Phân tích đường lối ngoại giao cây tre Việt Nam, đóng góp của ngoại giao vào sự nghiệp giải phóng dân tộc và phát triển đất nước.',
+        'Đánh giá di sản tư tưởng ngoại giao Hồ Chí Minh và đường lối đối ngoại độc lập, tự chủ hiện nay.',
       ],
     ],
   },
@@ -1642,20 +1598,58 @@ export const CALC_GUIDELINES: Record<string, string> = {
   'Sinh học':
     'bài tính sinh học đặc thù (số nuclêôtit, số NST, số tế bào, tỉ lệ kiểu gen, kiểu hình, xác suất, hiệu suất, năng lượng sinh thái…) ra một số',
   'Địa lí':
-    'tính toán số liệu địa lí đặc thù từ bảng số liệu (mật độ dân số, tỉ suất gia tăng dân số tự nhiên, tỉ trọng cơ cấu, tốc độ tăng trưởng, cán cân xuất nhập khẩu, bình quân theo đầu người, năng suất, sản lượng, biên độ nhiệt, múi giờ…) ra một số',
+    'tính toán số liệu địa lí đặc thù từ bảng số liệu (biên độ nhiệt = Tmax - Tmin; cán cân thương mại = Xuất - Nhập; mật độ dân số = Số dân / Diện tích; tỉ trọng cơ cấu = Thành phần / Tổng * 100; tốc độ tăng trưởng; bình quân đầu người…) ra một số duy nhất có quy ước làm tròn rõ ràng.',
   'Giáo dục kinh tế và pháp luật':
     'tính toán kinh tế đặc thù (lãi suất, thuế, lợi nhuận, tăng trưởng, lạm phát, tỉ lệ thất nghiệp…) ra một số',
   'Tin học': 'tính toán đặc thù tin học (dung lượng, đổi cơ số, số lần lặp…) ra một số',
   'Công nghệ': 'tính toán kĩ thuật đặc thù (công suất, tỉ số truyền, điện năng, hệ số…) ra một số',
 };
 
-export const QUESTION_RULES_TEXT = `I. NGUYÊN TẮC CHUNG (trắc nghiệm khách quan): phù hợp mục tiêu dạy học, kiến thức, kĩ năng cần kiểm tra; ngôn ngữ rõ ràng, chính xác, không nhiều cách hiểu; khách quan, chấm nhất quán; có tính phân biệt học sinh giỏi và yếu; bám chuẩn kiến thức, kĩ năng và yêu cầu cần đạt trong SGK và chương trình; mỗi câu (mỗi ý) chỉ kiểm tra một đơn vị kiến thức; không đưa ý kiến chủ quan hoặc kiến thức ngoài chương trình; tránh từ tuyệt đối hoặc mơ hồ (hoàn toàn, tuyệt đối, tất cả, duy nhất, luôn luôn, chủ yếu, nguyên nhân chính, rất lớn, cân đối, thường, có thể, phần lớn, đa số, đôi khi) nếu không thật cần; thuật ngữ khoa học chính xác, thống nhất, không dùng từ địa phương, viết tắt, từ nói miệng; chính tả, dấu câu chuẩn; các câu độc lập, câu sau không gợi ý đáp án cho câu trước; câu dễ không lộ đáp án, câu khó không đánh đố bằng mẹo chữ; định hướng năng lực, phần dẫn đủ bối cảnh.
-II. NHIỀU LỰA CHỌN (4 phương án A, B, C, D, chỉ 1 đáp án đúng; mục tiêu nhận biết, thông hiểu): phần dẫn có thể là câu hỏi (kết thúc bằng dấu hỏi chấm) hoặc câu dẫn chưa hoàn chỉnh mà phương án điền vào tạo thành MỘT CÂU HOÀN CHỈNH (không nhất thiết phải có dấu hỏi chấm); câu dẫn loại này KHÔNG kết thúc bằng bất kỳ kí hiệu nào (không dấu hai chấm, dấu phẩy, dấu chấm, dấu ba chấm), phương án nối trực tiếp vào từ cuối của câu dẫn để thành một câu hoặc mệnh đề hoàn chỉnh; ngắn gọn, đủ thông tin, chỉ một ý chính; không để từ khóa quyết định lặp lại nguyên văn trong đáp án đúng; nếu dùng phủ định (không, chưa, sai) phải VIẾT HOA hoặc in đậm; phương án nhiễu hợp lí, giống đáp án đúng nhưng sai về bản chất, xây từ lỗi sai phổ biến; 4 phương án tương đương độ dài, đồng nhất hình thức (từ loại, cấu trúc), cùng phạm vi khái niệm; tránh đáp án đúng dài vượt trội, phương án chồng chéo, "tất cả đều đúng/sai".
-III. ĐÚNG/SAI (Phần II - theo đúng chuẩn cấu trúc của Bộ GD&ĐT): Mỗi câu gồm phần dẫn, 1 ngữ liệu chuẩn chính thống (đoạn trích văn bản, bảng số liệu, biểu đồ thực tế từ Sách giáo khoa hoặc các cơ quan uy tín như Tổng cục Thống kê, Bộ Giáo dục và Đào tạo,...) với nguồn trích dẫn ĐẦY ĐỦ, RÕ RÀNG, HẠN CHẾ TỐI ĐA VIẾT TẮT (ví dụ: 'Nguồn: Sách giáo khoa Địa lí 12, Nhà xuất bản Giáo dục Việt Nam', 'Nguồn: Tổng cục Thống kê', 'Nguồn: Bộ Giáo dục và Đào tạo') và 4 ý a, b, c, d (mỗi ý là một khẳng định độc lập, đúng hoặc sai hoàn toàn; kết hợp hợp lý các mức độ Nhận biết, Thông hiểu, Vận dụng; không đều đúng hoặc đều sai).
-IV. TRẢ LỜI NGẮN (Phần III chỉ có MỘT dạng câu hỏi là TÍNH TOÁN): mỗi câu là một bài toán yêu cầu thực hiện chuỗi suy luận và tính ra một giá trị số, thí sinh điền kết quả (số nguyên hoặc số thập phân); không hỏi nhớ lại khái niệm, không điền từ hay cụm từ; lời dẫn rõ ràng, tránh lấy nguyên văn sách giáo khoa; đáp án ngắn gọn, duy nhất, nêu đơn vị đo hoặc “chỉ điền phần số”; nêu quy ước làm tròn; loại bỏ may rủi.
-V. MỨC ĐỘ NHẬN THỨC: Biết: nhắc lại, mô tả hoặc nhận diện trực tiếp khái niệm, công thức. Hiểu: kết nối, giải thích hoặc áp dụng trực tiếp kiến thức vào tình huống quen thuộc. Vận dụng: giải quyết vấn đề thực tiễn mới, tổng hợp kiến thức.
-VI. BỔ SUNG KĨ THUẬT: phần dẫn nêu một ý niệm hoàn chỉnh, học sinh đọc là hình dung được yêu cầu; hạn chế phủ định, nếu bắt buộc (không đúng, ngoại trừ) thì từ phủ định VIẾT HOA, in đậm và in nghiêng; không phủ định kép; phương án nhiễu hợp lí, hấp dẫn tương đương, không ngô nghê, không sai kiến thức cơ bản lộ liễu; không để đáp án đúng có cấu trúc ngữ pháp đặc biệt hoặc từ khóa lặp lại từ phần dẫn mà phương án nhiễu không có; phương án chứa chữ số, mốc thời gian, dữ liệu định lượng sắp xếp tăng dần hoặc giảm dần; không dùng "Tất cả các đáp án trên đều đúng", "Cả A và B đều đúng", "Không có đáp án nào đúng". Câu Đúng/Sai: Ngữ liệu chuẩn xác theo đúng cách ra đề của Bộ GDĐT; 4 ý a, b, c, d sắp xếp theo cấp độ tư duy từ dễ đến khó, ý a, b ở mức Biết hoặc Hiểu, ý c, d ở mức Vận dụng (ghi mức của từng ý ở trường "m"); ngữ liệu chung đủ sâu để khai thác 4 phán đoán độc lập. Câu trả lời ngắn: kết quả là một số (nguyên hoặc thập phân), chỉ gồm câu hỏi tính toán; nếu kết quả thập phân dài thì phần dẫn bắt buộc quy ước làm tròn (ví dụ làm tròn đến hàng phần trăm); nêu rõ đơn vị đo (ví dụ theo cm3) hoặc "chỉ điền phần số".
-VII. QUY ĐỊNH HÌNH THỨC BẮT BUỘC: mỗi phương án phần I và mỗi ý phần II đều kết thúc bằng dấu chấm; ngữ liệu phần II và dòng trích dẫn nguồn cũng kết thúc bằng dấu chấm; phần I: nếu phần dẫn kết thúc bằng dấu hỏi chấm (?) thì chữ cái đầu của mỗi phương án viết hoa, nếu không thì viết thường (trừ tên riêng, từ viết tắt); câu dẫn chưa hoàn chỉnh (kết thúc không có kí hiệu nào) kết hợp với phương án thành một câu hoặc mệnh đề hoàn chỉnh thì phương án viết thường và kết thúc bằng dấu chấm; phần II: chữ cái đầu của mỗi ý a), b), c), d) đều viết hoa. Không ghi nhãn A., B. trong nội dung phương án.`;
+export const GENERAL_EXAM_STRUCTURE_RULES = `=== QUY CHUẨN ĐỀ THI VÀ KĨ THUẬT SOẠN CÂU HỎI THEO BỘ GD&ĐT (TỪ TÀI LIỆU CẤU TRÚC RA ĐỀ THI CHUNG) ===
+1. CẤU TRÚC VÀ TỈ LỆ MA TRẬN ĐỀ THI:
+   - Nhận biết (B): 30% - 40%
+   - Thông hiểu (H): 30% - 40%
+   - Vận dụng (V): 15% - 20%
+   - Vận dụng cao (VDC): 5% - 10%
+2. YÊU CẦU CÂU HỎI VÀ ĐÁP ÁN (BÁM SÁT CHUẨN SGK BỘ KẾT NỐI TRI THỨC VỚI CUỘC SỐNG 2026):
+   - Câu hỏi độc lập hoàn toàn, thân câu hỏi không chứa thông tin gợi ý cho câu khác.
+   - Thân câu hỏi ngắn gọn, chỉ nêu vấn đề trọng tâm, không chứa từ mơ hồ/chủ quan ("thường là", "phần lớn", "có thể", "thích hợp nhất").
+   - Từ phủ định trong câu dẫn BẮT BUỘC in đậm, in nghiêng và viết hoa: ***KHÔNG***, ***NGOẠI TRỪ***, ***CHƯA***, ***SAI*** (không in đậm từ "không" trong danh từ như "không khí", "không gian").
+   - CẤM SỬ DỤNG TỪ MÊ-TA "khẳng định", "nhận định", "quan điểm", "ý này", "mệnh đề" TRONG CÁC PHƯƠNG ÁN A,B,C,D VÀ CÁC Ý a,b,c,d.
+   - Nội dung phương án và các ý BẮT BUỘC là 1 câu trần thuật về kiến thức/thực tế khách quan chuẩn 100% SGK (Ví dụ: "Năm 2023, tỉ lệ dân số đô thị nước ta đạt 42,6%.").
+   - 4 phương án A, B, C, D đồng nhất 100% về độ dài, cấu trúc ngữ pháp, từ loại và số vế/ý.
+   - Tuyệt đối không dùng "Tất cả các đáp án trên đều đúng/sai", "Cả A và B đều đúng".
+   - Bắt buộc loại bỏ nhận xét meta, chú thích sai/đúng (như [sai], (sai), 'ý này sai vì...') khỏi phương án và câu khẳng định.
+3. QUY CHUẨN CÁC PHẦN:
+   - Phần I (NLC - 4 chọn 1): Câu hỏi hỏi trực tiếp kiến thức cốt lõi. Phương án viết hoa đầu câu nếu câu dẫn kết thúc bằng dấu ?, viết thường nếu câu dẫn chưa hoàn chỉnh nối tiếp.
+   - Phần II (DS - Đúng/Sai 4 ý): Dựa trên 1 ngữ liệu trích dẫn chuẩn chính thống (có nguồn đầy đủ). 4 ý a,b,c,d độc lập là các câu kiến thức/thực tế khách quan. BẮT BUỘC có cả ý Đúng và ý Sai trong mỗi câu (TUYỆT ĐỐI CẤM 4 ý đều Đúng hoặc 4 ý đều Sai; ưu tiên phân bổ cân bằng 2 ý Đúng - 2 ý Sai hoặc 3-1, 1-3 đa dạng vị trí giữa các ý a, b, c, d). Điểm tăng dần: 1 ý đúng = 0.1đ, 2 ý = 0.25đ, 3 ý = 0.5đ, 4 ý = 1.0đ.
+   - Phần III (TLN - Trả lời ngắn): Bài toán tính toán ra 1 giá trị số cụ thể. Đáp án tối đa 4 ký tự tô vừa 4 ô phiếu trả lời. Lời dẫn ghi rõ quy ước làm tròn.
+   - Phần IV (TL - Tự luận): Đáp án & hướng dẫn chấm BẮT BUỘC cung cấp NỘI DUNG KIẾN THỨC CỤ THỂ, TRỰC TIẾP (từ khóa cốt lõi SGK Kết nối tri thức 2026), trình bày ngắn gọn bằng các gạch đầu dòng (-/+), chia barem điểm rành mạch giúp giám khảo dễ dàng đối chiếu và cho điểm chính xác.`;
+
+export const GEOGRAPHY_EXAM_RULES = `=== QUY CHUẨN ĐẶC THÙ MÔN ĐỊA LÍ (TỪ TÀI LIỆU HƯỚNG DẪN RA ĐỀ MÔN ĐỊA LÍ BỘ GD&ĐT) ===
+1. LOẠI BỎ TỪ MÊ-TA VÀ NỘI DUNG CHUẨN SGK ĐỊA LÍ 2026:
+   - TUYỆT ĐỐI KHÔNG ghi các từ "khẳng định", "nhận định", "quan điểm", "ý này" trong câu hỏi hay đáp án.
+   - Mọi phương án chọn và ý a,b,c,d BẮT BUỘC diễn đạt trực tiếp kiến thức địa lí SGK Kết nối tri thức 2026 (ví dụ: "Sự phân hóa thiên nhiên nước ta do vị trí địa lí và địa hình quy định.").
+2. KHÔNG SỬ DỤNG CHỈ DẪN TRANG ATLAT TRỰC TIẾP:
+   - TUYỆT ĐỐI KHÔNG xuất hiện các câu hỏi hoặc ý khẳng định có dạng: "Căn cứ vào Atlat Địa lí Việt Nam trang...", "Dựa vào Atlat trang...".
+   - Chuyển đổi kĩ năng sử dụng Atlat thành các kĩ năng đọc bản đồ, nhận biết vị trí địa lí, phân bố không gian và liên hệ thực tế chung.
+3. DỮ LIỆU THỐNG KÊ VÀ NGUỒN TRÍCH DẪN:
+   - Số liệu thống kê trong bảng/biểu đồ phải cập nhật trong khoảng 3 - 5 năm gần đây từ Tổng cục Thống kê (TCTK), Niên giám Thống kê hoặc tài liệu chính thống của Bộ GD&ĐT.
+4. CHUẨN HÓA TỪ KHÓA LỰA CHỌN BIỂU ĐỒ:
+   - Từ khóa "Cơ cấu" hoặc "Chuyển dịch cơ cấu" -> Biểu đồ Tròn (dưới 3 năm) hoặc Miền (từ 4 năm trở lên).
+   - Từ khóa "Tốc độ tăng trưởng" -> Biểu đồ Đường.
+   - Từ khóa "Quy mô" hoặc "Khối lượng" hoặc "So sánh quy mô" -> Biểu đồ Cột.
+   - Từ khóa "Quy mô và cơ cấu" -> Biểu đồ Cột kết hợp Đường hoặc Biểu đồ Tròn có bán kính khác nhau.
+5. TÍNH TOÁN CỦA PHẦN III (TRẢ LỜI NGẮN ĐỊA LÍ):
+   - Mật độ dân số = Số dân / Diện tích (người/km²).
+   - Biên độ nhiệt = Nhiệt độ tháng cao nhất - Nhiệt độ tháng thấp nhất (°C).
+   - Cán cân thương mại = Giá trị xuất khẩu - Giá trị nhập khẩu (USD hoặc nghìn tỉ đồng).
+   - Tỷ trọng cơ cấu = (Giá trị thành phần / Tổng số) × 100 (%).
+   - Tốc độ tăng trưởng = (Giá trị năm sau / Giá trị năm gốc) × 100 (%).
+   - Bình quân đầu người = Tổng giá trị / Số dân.
+   - Luôn kèm theo hướng dẫn làm tròn rõ ràng (hàng đơn vị hoặc hàng phần mười) sao cho kết quả ngắn gọn <= 4 ký tự.`;
+
+export const QUESTION_RULES_TEXT = `${GENERAL_EXAM_STRUCTURE_RULES}\n\n${GEOGRAPHY_EXAM_RULES}`;
 
 export const FOOTNOTES_TEXT: Record<number, string> = {
   2: 'Mỗi câu hỏi bao gồm 4 ý nhỏ, mỗi ý học sinh phải chọn đúng hoặc sai. Một số tài liệu xếp loại câu hỏi này vào loại Nhiều lựa chọn phức hợp hoặc Nhiều lựa chọn có nhiều phương án đúng.',
@@ -1664,3 +1658,4 @@ export const FOOTNOTES_TEXT: Record<number, string> = {
   5: 'Lựa chọn sao cho được khoảng 3,0 điểm, tương ứng với tỉ lệ khoảng 30%; tương tự như thế đối với các dạng khác.',
   6: 'Có ở trong một số ô của bản đặc tả, ghi tắt tên của năng lực (đã được quy định trong chương trình môn học/hoạt động giáo dục).',
 };
+

@@ -3,8 +3,10 @@ import { SubjectName, ExamSemester, StructureMode, QuestionPointConfig, MatrixRo
 import { MON } from '../constants/curriculumData';
 import { readFileText, fileToBase64 } from '../utils/fileReader';
 import { reconcileCurriculum, extractCurriculumFromText } from '../services/geminiService';
-import { ensureValidYccd } from '../utils/matrixCalculations';
-import { ChevronDown, ChevronUp, Sparkles, RotateCcw, Upload, Trash2, Loader2, FileText, HelpCircle, Copy, Check, Download } from 'lucide-react';
+import { ensureValidYccd, standardizeMatrixAndSpecToCv7991 } from '../utils/matrixCalculations';
+import { ChevronDown, ChevronUp, Sparkles, RotateCcw, Upload, Trash2, Loader2, FileText, HelpCircle, Copy, Check, Download, Wand2, SlidersHorizontal, Edit3 } from 'lucide-react';
+import { TemplateEditorModal } from './TemplateEditorModal';
+import { NOCALC } from '../constants/curriculumData';
 
 interface SettingsPanelProps {
   mon: SubjectName;
@@ -78,6 +80,53 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const [showGuide, setShowGuide] = useState<boolean>(false);
   const [guideTab, setGuideTab] = useState<'ppct' | 'yccd'>('ppct');
   const [copied, setCopied] = useState<boolean>(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
+
+  const handleStandardizeCv7991 = () => {
+    const isNoCalcDefault = NOCALC.includes(mon);
+    const shouldNoTLN = noTLN || (structureMode === 'k' && isNoCalcDefault);
+    const standardized = standardizeMatrixAndSpecToCv7991(
+      currentRows,
+      mon,
+      grade,
+      semester,
+      structureMode,
+      shouldNoTLN,
+      points,
+      targetFormatPoints,
+      targetLevelPoints,
+      ppctData
+    );
+    onReconcileSuccess(
+      standardized.map((r) => ({ c: r.c, n: r.n, s: r.s, v: r.v, y: r.y })),
+      'Đã chuẩn hóa Ma trận & Bản đặc tả về đúng 100% chuẩn CV 7991',
+      ppctData
+    );
+    setReconcileStatus('✓ Đã chuẩn hóa Ma trận & Bản đặc tả về đúng 100% chuẩn CV 7991!');
+  };
+
+  const handleSavePpctAndYccdFromModal = (newPpct: string, newYccd: string) => {
+    const updatedData = {
+      ...ppctData,
+      text: newPpct,
+      yccdText: newYccd,
+    };
+    onPpctDataChange(updatedData);
+
+    setReconcileStatus('Đang trích xuất và cập nhật Ma trận & Bản đặc tả từ nội dung PPCT/YCCĐ...');
+    const localExtracted = extractCurriculumFromText(newPpct, newYccd, mon, grade, semester);
+    if (localExtracted.length > 0) {
+      onReconcileSuccess(localExtracted, `Đã cập nhật từ PPCT/YCCĐ đã chỉnh (${semester})`, updatedData);
+    } else {
+      const cleanRows = ensureValidYccd(currentRows, mon, grade, updatedData, true);
+      onReconcileSuccess(
+        cleanRows.map((r) => ({ c: r.c, n: r.n, s: r.s, v: r.v, y: r.y })),
+        `Đã đối chiếu YCCĐ từ nội dung đã chỉnh (${semester})`,
+        updatedData
+      );
+    }
+    setReconcileStatus('✓ Đã cập nhật thành công Ma trận & Bản đặc tả từ PPCT/YCCĐ mẫu!');
+  };
 
   const downloadSamplePPCT = (ext: 'csv' | 'txt' = 'csv') => {
     const contentCSV = `STT,Tuần,Nội dung bài học / Tên chương,Số tiết
@@ -196,10 +245,29 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const handlePpctUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size
+    if (file.size === 0) {
+      setReconcileStatus(`⚠️ Cảnh báo lỗi: Tệp PPCT "${file.name}" có dung lượng 0 KB (tệp rỗng)! Vui lòng kiểm tra lại file.`);
+      return;
+    }
+
+    // Check extension
+    const validExtensions = ['.docx', '.doc', '.xlsx', '.xls', '.pdf', '.txt', '.csv'];
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    if (!validExtensions.includes(ext)) {
+      setReconcileStatus(`⚠️ Cảnh báo định dạng: Tệp "${file.name}" (${ext}) không nằm trong các định dạng được hỗ trợ (.docx, .xlsx, .pdf, .txt, .csv)!`);
+      return;
+    }
+
     try {
       setReconcileStatus(`Đang đọc tệp PPCT: ${file.name}...`);
       const text = await readFileText(file);
       const b64 = await fileToBase64(file);
+      if (!text.trim() && !b64) {
+        setReconcileStatus(`⚠️ Cảnh báo lỗi: Không trích xuất được văn bản từ tệp "${file.name}". Hãy kiểm tra xem tệp có bị khóa bảo vệ hoặc quét ảnh scan không!`);
+        return;
+      }
       const textTrunc = text.slice(0, 300000);
       const mime = file.type || 'application/pdf';
       setPpctFileText(textTrunc);
@@ -213,25 +281,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       };
       onPpctDataChange(updatedPpctData);
 
-      // CRITICAL: Extract curriculum from uploaded file and update matrix immediately!
+      // Run AI reconcile directly on uploaded file for accurate extraction
       const currentYccd = yccdFileText || ppctData.yccdText || '';
-      const extracted = extractCurriculumFromText(textTrunc, currentYccd, mon, grade, semester);
-      if (extracted.length > 0) {
-        onReconcileSuccess(extracted, `Đã lấy đúng 100% dữ liệu từ tệp PPCT "${file.name}"`, updatedPpctData);
-        setReconcileStatus(`✓ Đã nạp đúng ${extracted.length} chương/chủ đề và toàn bộ bài học từ tệp "${file.name}" vào Ma trận! Đang đối chiếu YCCĐ cho Bản đặc tả...`);
-
-        // Automatically run background AI reconcile to refine YCCĐ for the Spec Table
-        runReconcileWithData(
-          textTrunc,
-          currentYccd,
-          b64,
-          yccdBase64 || ppctData.yccdBase64 || '',
-          mime,
-          yccdMimeType || ppctData.yccdMimeType || ''
-        );
-      } else {
-        setReconcileStatus(`Đã tải lên tệp PPCT "${file.name}". Bấm nút "Đối chiếu và điều chỉnh bằng AI" bên dưới để trích xuất.`);
-      }
+      setReconcileStatus(`Đang phân tích và gọi AI Gemini trích xuất nội dung tệp "${file.name}"...`);
+      await runReconcileWithData(
+        textTrunc,
+        currentYccd,
+        b64,
+        yccdBase64 || ppctData.yccdBase64 || '',
+        mime,
+        yccdMimeType || ppctData.yccdMimeType || ''
+      );
     } catch (err: any) {
       setReconcileStatus(`Lỗi đọc PPCT: ${err.message}`);
     }
@@ -240,10 +300,29 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const handleYccdUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size
+    if (file.size === 0) {
+      setReconcileStatus(`⚠️ Cảnh báo lỗi: Tệp YCCĐ "${file.name}" có dung lượng 0 KB (tệp rỗng)! Vui lòng kiểm tra lại file.`);
+      return;
+    }
+
+    // Check extension
+    const validExtensions = ['.docx', '.doc', '.xlsx', '.xls', '.pdf', '.txt', '.csv'];
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    if (!validExtensions.includes(ext)) {
+      setReconcileStatus(`⚠️ Cảnh báo định dạng: Tệp "${file.name}" (${ext}) không nằm trong các định dạng được hỗ trợ (.docx, .xlsx, .pdf, .txt, .csv)!`);
+      return;
+    }
+
     try {
       setReconcileStatus(`Đang đọc tệp YCCĐ: ${file.name}...`);
       const text = await readFileText(file);
       const b64 = await fileToBase64(file);
+      if (!text.trim() && !b64) {
+        setReconcileStatus(`⚠️ Cảnh báo lỗi: Không trích xuất được văn bản từ tệp "${file.name}". Hãy kiểm tra xem tệp có bị khóa bảo vệ hoặc quét ảnh scan không!`);
+        return;
+      }
       const textTrunc = text.slice(0, 300000);
       const mime = file.type || 'application/pdf';
       setYccdFileText(textTrunc);
@@ -346,16 +425,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     );
   };
 
+  const hasUploadedFiles = Boolean(
+    ppctFileText || ppctBase64 || ppctData.text || ppctData.base64 || yccdFileText || yccdBase64 || ppctData.yccdText || ppctData.yccdBase64
+  );
+
   return (
-    <section className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-4 space-y-4">
-      {/* Primary Selectors */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs mb-3 space-y-3">
+      {/* Compact Primary Selectors */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Môn học</label>
+          <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Môn học</label>
           <select
             value={mon}
             onChange={(e) => onMonChange(e.target.value as SubjectName)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             {MON.map((m) => (
               <option key={m} value={m}>
@@ -366,11 +449,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Khối lớp</label>
+          <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Khối lớp</label>
           <select
             value={grade}
             onChange={(e) => onGradeChange(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="10">Khối 10</option>
             <option value="11">Khối 11</option>
@@ -379,11 +462,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Kì kiểm tra</label>
+          <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Kì kiểm tra</label>
           <select
             value={semester}
             onChange={(e) => onSemesterChange(e.target.value as ExamSemester)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="Giữa kì I">Giữa kì I</option>
             <option value="Cuối kì I">Cuối kì I</option>
@@ -393,50 +476,82 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Cấu trúc đề</label>
+          <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cấu trúc đề</label>
           <select
             value={structureMode}
             onChange={(e) => onStructureModeChange(e.target.value as StructureMode)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="k">Theo Phụ lục CV 7991</option>
-            <option value="t">Theo cấu trúc đề tốt nghiệp (QĐ 764)</option>
+            <option value="t">Theo cấu trúc tốt nghiệp (QĐ 764)</option>
           </select>
         </div>
       </div>
 
-      {/* Checkbox for no Short-answer */}
-      <div className="pt-1">
-        <label className="inline-flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
+      {/* Sub-bar: Checkbox for no Short-answer + Inline Action Toggles */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+        <label className="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={noTLN}
             onChange={(e) => onNoTLNChange(e.target.checked)}
-            className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+            className="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
           />
           <span className="font-medium">
-            Môn không dùng dạng Trả lời ngắn (chuyển điểm sang “Đúng – Sai”)
+            Không dùng dạng Trả lời ngắn (chuyển điểm sang “Đúng – Sai”)
           </span>
         </label>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setShowReconcile(!showReconcile);
+              if (!showReconcile) setShowPoints(false);
+            }}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              showReconcile
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                : hasUploadedFiles
+                ? 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100'
+                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            }`}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Chuẩn hóa PPCT & YCCĐ</span>
+            {hasUploadedFiles && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500 text-white font-bold">
+                Đã nạp
+              </span>
+            )}
+            {showReconcile ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowPoints(!showPoints);
+              if (!showPoints) setShowReconcile(false);
+            }}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
+              showPoints
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            }`}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>
+              Thang điểm ({targetTotalScore}đ)
+            </span>
+            {showPoints ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
       </div>
 
-      {/* Accordion 1: Upload PPCT / YCCD */}
-      <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
-        <button
-          type="button"
-          onClick={() => setShowReconcile(!showReconcile)}
-          className="w-full flex items-center justify-between px-4 py-3 text-left font-semibold text-sm text-indigo-700 hover:bg-slate-100/70 transition"
-        >
-          <span className="flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            Tải lên PPCT, YCCĐ để đối chiếu bằng AI Gemini (không bắt buộc)
-          </span>
-          {showReconcile ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-
-        {showReconcile && (
-          <div className="p-4 border-t border-slate-200 bg-white space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Expandable Drawer 1: Upload PPCT / YCCD */}
+      {showReconcile && (
+        <div className="p-3.5 border border-indigo-100 rounded-xl bg-indigo-50/30 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-slate-600">
@@ -514,6 +629,24 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <button
                 type="button"
+                onClick={handleStandardizeCv7991}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-sm transition active:scale-95 cursor-pointer"
+              >
+                <Wand2 className="w-4 h-4 text-emerald-200" />
+                <span>✨ Chuẩn hóa Ma trận & Bản đặc tả về đúng CV 7991</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsTemplateModalOpen(true)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-semibold hover:bg-indigo-100 transition cursor-pointer"
+              >
+                <Edit3 className="w-4 h-4 text-indigo-600" />
+                <span>📝 Mẫu & Trình chỉnh sửa PPCT - YCCĐ</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={handleRunReconcile}
                 disabled={isReconciling}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 disabled:opacity-60 transition shadow-sm active:scale-95 cursor-pointer"
@@ -526,10 +659,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>Đối chiếu và điều chỉnh bằng AI</span>
+                    <span>Đối chiếu tệp bằng AI</span>
                   </>
                 )}
               </button>
+
               <button
                 type="button"
                 onClick={onResetDefault}
@@ -716,25 +850,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 <b>Ghi chú đối chiếu:</b> {reconcileNotes}
               </div>
             )}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Accordion 2: Points configuration */}
-      <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
-        <button
-          type="button"
-          onClick={() => setShowPoints(!showPoints)}
-          className="w-full flex items-center justify-between px-4 py-2.5 text-left font-semibold text-xs text-slate-700 hover:bg-slate-100/70 transition"
-        >
-          <span>Điểm số mỗi câu hỏi</span>
-          {showPoints ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-
-        {showPoints && (
-          <div className="p-4 border-t border-slate-200 bg-white space-y-3">
-            <p className="text-xs text-slate-500">{pointNote}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Expandable Drawer 2: Points configuration */}
+      {showPoints && (
+        <div className="p-3.5 border border-slate-200 rounded-xl bg-slate-50/60 space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
                   Nhiều lựa chọn (TNLC)
@@ -868,9 +990,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Interactive Template & Editor Modal */}
+      <TemplateEditorModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        mon={mon}
+        grade={grade}
+        ppctText={ppctFileText || ppctData.text}
+        yccdText={yccdFileText || ppctData.yccdText}
+        onSavePpctAndYccd={handleSavePpctAndYccdFromModal}
+      />
     </section>
   );
 };

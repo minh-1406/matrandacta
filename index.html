@@ -4,6 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <script>
+      // Polyfill ES2025 global Iterator for Safari / WebKit compatibility (required by pdfjs-dist v6+)
+      (function() {
+        var g = typeof globalThis !== 'undefined' ? globalThis : window;
+        var iterProto = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
+        if (typeof g.Iterator === 'undefined') {
+          function IteratorPolyfill() {}
+          if (iterProto) {
+            IteratorPolyfill.prototype = iterProto;
+          }
+          IteratorPolyfill.from = function(iterable) {
+            if (iterable && typeof iterable[Symbol.iterator] === 'function') {
+              return iterable[Symbol.iterator]();
+            }
+            return iterable;
+          };
+          g.Iterator = IteratorPolyfill;
+        } else if (!g.Iterator.prototype && iterProto) {
+          g.Iterator.prototype = iterProto;
+        }
+      })();
+
       // Suppress Vite HMR WebSocket connection errors in iFrame preview environment
       window.addEventListener('unhandledrejection', function(event) {
         var reason = event.reason;
@@ -32,7 +53,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   </head>
   <body class="bg-[#f2f5fb] text-[#0f172a] antialiased">
     <div id="root"></div>

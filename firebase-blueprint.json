@@ -1,8 +1,19 @@
 {
   "entities": {
+    "UserSession": {
+      "title": "UserSession",
+      "description": "Active working session state synced across devices",
+      "type": "object",
+      "properties": {
+        "updatedAt": { "type": "string" },
+        "sessionCode": { "type": "string" },
+        "state": { "type": "object" }
+      },
+      "required": ["updatedAt", "state"]
+    },
     "SavedMatrix": {
       "title": "SavedMatrixItem",
-      "description": "Saved matrix item",
+      "description": "Saved matrix item in user library",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
@@ -15,9 +26,17 @@
     }
   },
   "firestore": {
+    "/users/{userId}/session/active": {
+      "schema": "UserSession",
+      "description": "Active user session"
+    },
     "/users/{userId}/matrices/{matrixId}": {
       "schema": "SavedMatrix",
       "description": "User saved matrices"
+    },
+    "/sessions/{sessionCode}": {
+      "schema": "UserSession",
+      "description": "Shared session by passcode"
     }
   }
 }

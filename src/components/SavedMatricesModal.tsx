@@ -24,7 +24,15 @@ import {
   Calendar,
   Layers,
   Copy,
+  Cloud,
 } from 'lucide-react';
+import {
+  auth,
+  fetchCloudSavedMatrices,
+  syncSavedMatrixToCloud,
+  deleteCloudSavedMatrix,
+  deleteAllCloudSavedMatrices,
+} from '../services/firebaseService';
 
 interface SavedMatricesModalProps {
   isOpen: boolean;
@@ -43,22 +51,55 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
 }) => {
   const [savedList, setSavedList] = useState<SavedMatrixItem[]>(() => getSavedMatrices());
   const [saveTitleInput, setSaveTitleInput] = useState<string>(
-    `Ma trận ${currentState.mon} lớp ${currentState.grade} - ${currentState.semester}`
+    `Ma trận & Bản đặc tả ${currentState.mon} lớp ${currentState.grade} - ${currentState.semester}`
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitleInput, setEditTitleInput] = useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
+  const [modalNotice, setModalNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const deletedAllSessionRef = useRef<boolean>(false);
 
   // Always refresh the list when modal opens or state changes
   useEffect(() => {
     if (isOpen) {
+      deletedAllSessionRef.current = false;
       setSavedList(getSavedMatrices());
       setSaveTitleInput(
-        `Ma trận ${currentState.mon} lớp ${currentState.grade} - ${currentState.semester}`
+        `Ma trận & Bản đặc tả ${currentState.mon} lớp ${currentState.grade} - ${currentState.semester}`
       );
       setSearchFilter('');
       setEditingId(null);
+      setModalNotice(null);
+
+      // If user is logged into Google, automatically retrieve saved matrices from other devices
+      const user = auth.currentUser;
+      if (user && !user.isAnonymous) {
+        fetchCloudSavedMatrices(user.uid)
+          .then((cloudItems) => {
+            if (deletedAllSessionRef.current) return;
+            if (cloudItems && cloudItems.length > 0) {
+              const currentLocal = getSavedMatrices();
+              const mergedMap = new Map<string, SavedMatrixItem>();
+              currentLocal.forEach((it) => mergedMap.set(it.id, it));
+              let hasNewFromCloud = false;
+              cloudItems.forEach((c) => {
+                if (c?.id && !mergedMap.has(c.id)) {
+                  mergedMap.set(c.id, c);
+                  hasNewFromCloud = true;
+                }
+              });
+              if (hasNewFromCloud) {
+                const mergedList = Array.from(mergedMap.values()).sort(
+                  (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+                );
+                localStorage.setItem('app_saved_matrices_list', JSON.stringify(mergedList));
+                setSavedList(mergedList);
+              }
+            }
+          })
+          .catch((e) => console.warn('Could not sync cloud saved matrices:', e));
+      }
     }
   }, [isOpen, currentState.mon, currentState.grade, currentState.semester]);
 
@@ -70,9 +111,15 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
 
   const handleSaveCurrent = (e: React.FormEvent) => {
     e.preventDefault();
+    deletedAllSessionRef.current = false;
     const title = saveTitleInput.trim() || `Ma trận ${currentState.mon} Lớp ${currentState.grade}`;
-    saveMatrixItem(title, currentState);
+    const item = saveMatrixItem(title, currentState);
+    const user = auth.currentUser;
+    if (user && !user.isAnonymous) {
+      syncSavedMatrixToCloud(item, user);
+    }
     refreshList();
+    setModalNotice(`✓ Đã lưu thành công ma trận "${title}"!`);
     onShowMessage(`Đã lưu thành công ma trận "${title}"!`);
   };
 
@@ -85,12 +132,23 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
   const handleDelete = (id: string, title: string) => {
     const updated = deleteSavedMatrixItem(id);
     setSavedList(updated);
+    const user = auth.currentUser;
+    if (user && !user.isAnonymous) {
+      deleteCloudSavedMatrix(user.uid, id);
+    }
+    setModalNotice(`✓ Đã xóa ma trận "${title}" khỏi danh sách.`);
     onShowMessage(`Đã xóa thành công ma trận "${title}" khỏi danh sách!`);
   };
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll = async () => {
+    deletedAllSessionRef.current = true;
     const updated = deleteAllSavedMatrices();
     setSavedList(updated);
+    const user = auth.currentUser;
+    if (user && !user.isAnonymous) {
+      await deleteAllCloudSavedMatrices(user.uid);
+    }
+    setModalNotice('✓ Đã xóa toàn bộ tất cả các phiên bản ma trận & bản đặc tả đã lưu!');
     onShowMessage('Đã xóa toàn bộ tất cả ma trận trong thư viện đã lưu!');
   };
 
@@ -161,16 +219,16 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-800">
-                Thư viện Ma trận & Bản đặc tả đã lưu
+                Thư viện Ma trận & Bản đặc tả (kèm YCCĐ) đã lưu
               </h3>
               <p className="text-xs text-slate-500">
-                Quản lý, tải lại hoặc sao lưu các bản ma trận đã tạo trên hệ thống
+                Quản lý, mở lại hoặc sao lưu các bản Ma trận và Bản đặc tả kèm YCCĐ chi tiết
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -184,16 +242,16 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
                 type="text"
                 value={saveTitleInput}
                 onChange={(e) => setSaveTitleInput(e.target.value)}
-                placeholder="Đặt tên cho ma trận hiện tại..."
+                placeholder="Đặt tên cho ma trận và bản đặc tả hiện tại..."
                 className="w-full text-xs sm:text-sm font-medium px-3.5 py-2.5 bg-white border border-indigo-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition active:scale-95"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition active:scale-95 cursor-pointer"
             >
               <Save className="w-4 h-4" />
-              Lưu ma trận hiện tại
+              Lưu Ma trận & Bản đặc tả
             </button>
           </form>
         </div>
@@ -210,8 +268,9 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {savedList.length > 0 && (
               <button
+                type="button"
                 onClick={handleDeleteAll}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-semibold transition active:scale-95 cursor-pointer"
                 title="Xóa toàn bộ danh sách ma trận đã lưu"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -220,9 +279,10 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
             )}
 
             <button
+              type="button"
               onClick={handleExportJSON}
               disabled={savedList.length === 0}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition disabled:opacity-50 cursor-pointer"
               title="Tải về tệp JSON chứa toàn bộ ma trận đã lưu"
             >
               <Download className="w-3.5 h-3.5 text-indigo-600" />
@@ -230,8 +290,9 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
             </button>
 
             <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
               title="Nhập danh sách ma trận từ tệp JSON sao lưu"
             >
               <Upload className="w-3.5 h-3.5 text-teal-600" />
@@ -249,6 +310,18 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
 
         {/* Saved List Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
+          {modalNotice && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between">
+              <span>{modalNotice}</span>
+              <button
+                type="button"
+                onClick={() => setModalNotice(null)}
+                className="text-emerald-600 hover:text-emerald-900 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           {filteredList.length === 0 ? (
             <div className="py-12 text-center text-slate-400 space-y-3">
               <FolderOpen className="w-12 h-12 mx-auto stroke-1 text-slate-300" />
@@ -306,7 +379,18 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
                       </span>
                       <span className="inline-flex items-center gap-1 font-medium bg-slate-100 px-2 py-0.5 rounded-md">
                         <Layers className="w-3 h-3 text-slate-400" />
-                        {item.state.rows?.length || 0} chủ đề
+                        {item.state.rows?.length || 0} bài học
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-md ${
+                          item.state.rows?.some((r) => r.s && (r.s[0] || r.s[1] || r.s[2]))
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}
+                      >
+                        {item.state.rows?.some((r) => r.s && (r.s[0] || r.s[1] || r.s[2]))
+                          ? '✓ Kèm YCCĐ'
+                          : 'Chưa có YCCĐ'}
                       </span>
                       <span className="inline-flex items-center gap-1 text-slate-400">
                         <Clock className="w-3 h-3" />
@@ -319,10 +403,10 @@ export const SavedMatricesModal: React.FC<SavedMatricesModalProps> = ({
                   <div className="flex items-center gap-1.5 shrink-0 justify-end">
                     <button
                       onClick={() => handleLoad(item)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition active:scale-95 shadow-sm"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition active:scale-95 shadow-sm cursor-pointer"
                     >
                       <FolderOpen className="w-3.5 h-3.5" />
-                      Mở ma trận
+                      Mở Ma trận & Bản đặc tả
                     </button>
 
                     <button

@@ -50,6 +50,7 @@ export interface GeneratedQuestion {
   d: 'NLC' | 'DS' | 'TLN' | 'TL';
   m: 'B' | 'H' | 'V';
   stem: string;
+  ask?: string; // Question prompt / instruction below stimulus or table (Part III)
   opts?: string[];
   ans?: string;
   items?: TrueFalseSubItem[];
@@ -59,6 +60,7 @@ export interface GeneratedQuestion {
   chk?: boolean; // needs verification against textbook
   r?: number; // associated row index in matrix
   _num?: number;
+  _edited?: boolean;
 }
 
 export type SubjectName =
@@ -82,6 +84,28 @@ export type SubjectName =
 export type ExamSemester = 'Giữa kì I' | 'Cuối kì I' | 'Giữa kì II' | 'Cuối kì II';
 export type StructureMode = 'k' | 't'; // 'k': CV 7991, 't': QĐ 764
 
+export type AiEngine = 'hybrid' | 'claude' | 'chatgpt' | 'gemini' | 'notebooklm';
+
+export type PromptComplexityLevel = 'basic' | 'standard' | 'advanced' | 'gifted';
+export type PromptLanguageStyle = 'academic' | 'natural' | 'practical' | 'concise';
+export type PromptTopicPriority = 'balanced' | 'core_focus' | 'practical_data' | 'custom';
+
+export interface PromptControlParams {
+  complexity?: PromptComplexityLevel;
+  languageStyle?: PromptLanguageStyle;
+  topicPriority?: PromptTopicPriority;
+  priorityTopicText?: string;
+}
+
+export interface AiEngineConfig {
+  engine: AiEngine;
+  modelName?: string;
+  enableSgkGrounding: boolean;
+  enablePedagogicalRefinement: boolean;
+  temperature?: number;
+  promptParams?: PromptControlParams;
+}
+
 export interface FullAppState {
   mon: SubjectName;
   grade: string;
@@ -93,6 +117,7 @@ export interface FullAppState {
   targetLevelPoints: number[];
   points: QuestionPointConfig;
   rows: MatrixRow[];
+  aiEngineConfig?: AiEngineConfig;
   ppctData?: {
     text: string;
     base64: string;
@@ -109,4 +134,29 @@ export interface SavedMatrixItem {
   updatedAt: string; // ISO timestamp
   createdAt: string; // ISO timestamp
   state: FullAppState;
+}
+
+export interface ExamHeaderConfig {
+  soGiaoDuc: string;
+  truongThpt: string;
+  tenKyThi: string;
+  namHoc: string;
+  thoiGianLamBai: string;
+  ghiChuDeThi: string;
+}
+
+export interface SavedExamItem {
+  id: string;
+  title: string;
+  subject: SubjectName;
+  grade: string;
+  semester: ExamSemester;
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
+  numSets: number;
+  examCodes: string[];
+  points: QuestionPointConfig;
+  questionsPerSource: GeneratedQuestion[][];
+  headerConfig?: ExamHeaderConfig;
+  customPrompt?: string;
 }
